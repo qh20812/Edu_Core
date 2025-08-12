@@ -1,0 +1,210 @@
+# ================================
+# DEPENDENCIES & BUILD ARTIFACTS
+# ================================
+node_modules/
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnpm-debug.log*
+
+# ================================
+# LOGS & DEBUG FILES
+# ================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+debug.log
+*.debug
+
+# ================================
+# ENVIRONMENT & CONFIGURATION
+# ================================
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite specific
+*.local
+.vite/
+
+# ================================
+# TESTING & COVERAGE
+# ================================
+coverage/
+.nyc_output/
+test-results/
+test-reports/
+e2e-results/
+playwright-report/
+*.test.log
+
+# ================================
+# SECURITY & SENSITIVE DATA
+# ================================
+# API Keys & Secrets
+api-keys.json
+secrets.json
+config.private.json
+
+# SSL Certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# Firebase
+firebase-debug.log
+.firebase/
+firebase-config.js
+
+# Auth configurations
+auth-config.json
+oauth-secrets.json
+
+# ================================
+# EDITOR & IDE FILES
+# ================================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+.idea/
+*.swp
+*.swo
+*~
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ================================
+# OS SPECIFIC FILES
+# ================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Linux
+*~
+.nfs*
+
+# ================================
+# TEMPORARY & CACHE FILES
+# ================================
+# ESLint
+.eslintcache
+
+# Prettier
+.prettiercache
+
+# TypeScript
+*.tsbuildinfo
+
+# Turbo
+.turbo/
+
+# Parcel
+.parcel-cache/
+
+# ================================
+# DEVELOPMENT & STORYBOOK
+# ================================
+# Storybook
+storybook-static/
+.storybook/public/
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# ================================
+# ASSETS & UPLOADS
+# ================================
+# User uploaded files
+public/uploads/
+public/files/
+src/assets/uploads/
+
+# Generated assets
+public/generated/
+src/assets/generated/
+
+# ================================
+# ANALYTICS & MONITORING
+# ================================
+# Bundle analysis
+bundle-analyzer-report.html
+stats.json
+
+# Performance monitoring
+.lighthouse/
+performance-reports/
+
+# ================================
+# DEPLOYMENT & DOCKER
+# ================================
+# Deployment
+.vercel/
+.netlify/
+.surge/
+
+# Docker
+Dockerfile.local
+docker-compose.override.yml
+
+# ================================
+# BACKUP FILES
+# ================================
+*.backup
+*.bak
+*.orig
+
+# ================================
+# MISC DEVELOPMENT FILES
+# ================================
+# Notes & documentation (if sensitive)
+DEVELOPMENT_NOTES.md
+TODO.private.md
+*.local.md
+
+# Mock data with sensitive info
+mock-data.private.json
+
+# Local database
+*.db
+*.sqlite
+*.sqlite3

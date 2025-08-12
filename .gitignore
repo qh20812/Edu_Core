@@ -1,0 +1,102 @@
+# ================================
+# ROOT LEVEL GITIGNORE FOR EDUCORE
+# ================================
+
+# ================================
+# ENVIRONMENT & SENSITIVE CONFIG
+# ================================
+.env
+.env.*
+!.env.example
+config.private.json
+secrets.json
+
+# ================================
+# LOGS & DEBUG FILES
+# ================================
+*.log
+logs/
+debug/
+
+# ================================
+# DEVELOPMENT & LOCAL FILES
+# ================================
+# IDE & Editor
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ================================
+# DEPLOYMENT & DOCKER
+# ================================
+# Docker override files
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Deployment configs
+deployment-config.local.yml
+k8s-secrets.yml
+
+# ================================
+# DOCUMENTATION (SENSITIVE)
+# ================================
+# Internal documentation that shouldn't be public
+INTERNAL_DOCS.md
+SECURITY_NOTES.md
+DEPLOYMENT_GUIDE.private.md
+DATABASE_PASSWORDS.md
+
+# Meeting notes & planning
+meetings/
+planning/internal/
+architecture-decisions/private/
+
+# ================================
+# BACKUP & DATA FILES
+# ================================
+backups/
+data-exports/
+*.backup
+*.dump
+*.sql
+
+# ================================
+# TESTING DATA
+# ================================
+test-data/sensitive/
+mock-users.json
+test-accounts.json
+
+# ================================
+# CERTIFICATES & KEYS
+# ================================
+certificates/
+ssl/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ================================
+# MONITORING & ANALYTICS
+# ================================
+analytics-data/
+monitoring-configs/private/
+error-reports/sensitive/
+
+# ================================
+# TEMP & MISC
+# ================================
+tmp/
+temp/
+*.tmp
+scratch/
+experiments/
