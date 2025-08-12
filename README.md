@@ -619,10 +619,10 @@ Khi báo cáo bug, vui lòng cung cấp:
 
 ### 👥 Team
 
-**🧑‍💻 Lead Developer**: [Huỳnh Ngọc Quí](mailto:quihn.124010124091@vtc.edu.vn)
-**🎨 UI/UX Designer**: [Mai Xuân Gia Quyến, Trần Phương Khôi](mailto:quyenmxq.124010124083@vtc.edu.vn)
-**📊 Product Manager**: [Huỳnh Ngọc Quí, Võ Nguyễn Vỹ Khang](mailto:quihn.124010124091@vtc.edu.vn)
-**📈 Marketing**: [Đặng Thị Trúc Linh](mailto:linhdtt.125020124041@vtc.edu.vn)
+- **🧑‍💻 Lead Developer**: [Huỳnh Ngọc Quí](mailto:quihn.124010124091@vtc.edu.vn)
+- **🎨 UI/UX Designer**: [Mai Xuân Gia Quyến, Trần Phương Khôi](mailto:quyenmxq.124010124083@vtc.edu.vn)
+- **📊 Product Manager**: [Huỳnh Ngọc Quí, Võ Nguyễn Vỹ Khang](mailto:quihn.124010124091@vtc.edu.vn)
+- **📈 Marketing**: [Đặng Thị Trúc Linh](mailto:linhdtt.125020124041@vtc.edu.vn)
 
 </div>
 
