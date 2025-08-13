@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useUI } from "../../Hooks/useUI";
 import {
   FaSchool,
@@ -9,6 +9,7 @@ import {
   FaPhone,
   FaMapMarkerAlt,
   FaBuilding,
+  FaDollarSign,
 } from "react-icons/fa";
 import {
   FormField,
@@ -18,12 +19,39 @@ import {
   TermsAgreement,
   ProcessInfo,
 } from "../../Components/Forms";
+import { tenantService } from "../../Services/tenant.service";
 
 const TenantRegisterPage = () => {
   const { showSuccess, showError } = useUI();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSchoolType, setSelectedSchoolType] = useState("high_school");
+  
+  // Get plan information from URL params
+  const [selectedPlan, setSelectedPlan] = useState({
+    plan: searchParams.get('plan') || 'small',
+    billing: searchParams.get('billing') || 'monthly',
+    price: searchParams.get('price') || '3000000',
+    maxStudents: searchParams.get('maxStudents') || '300'
+  });
+
+  useEffect(() => {
+    // Update plan info if URL params change
+    const plan = searchParams.get('plan');
+    const billing = searchParams.get('billing');
+    const price = searchParams.get('price');
+    const maxStudents = searchParams.get('maxStudents');
+    
+    if (plan || billing || price || maxStudents) {
+      setSelectedPlan({
+        plan: plan || 'small',
+        billing: billing || 'monthly',
+        price: price || '3000000',
+        maxStudents: maxStudents || '300'
+      });
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -63,13 +91,54 @@ const TenantRegisterPage = () => {
     try {
       console.log("Tenant registration data:", data);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      showSuccess("Đăng ký thành công! Yêu cầu của bạn đang chờ được duyệt bởi quản trị viên hệ thống.");
-      navigate("/tenant-registration-success");
+      // Prepare data in the format expected by backend
+      const tenantInfo = {
+        name: data.schoolName,
+        address: `${data.address}, ${data.city}, ${data.province}`,
+        contact_email: data.email,
+        contact_phone: data.phone,
+      };
+
+      const adminInfo = {
+        email: data.adminEmail,
+        password: data.password,
+        full_name: data.adminFullName,
+        phone: data.adminPhone,
+      };
+
+      const planInfo = {
+        plan: selectedPlan.plan,
+        billing_cycle: selectedPlan.billing,
+      };
+
+      // Call the actual registration API
+      const response = await tenantService.registerTenantWithPlan(
+        tenantInfo,
+        adminInfo,
+        planInfo
+      );
+
+      if (response.success) {
+        showSuccess("Đăng ký thành công! Bạn có thể tiến hành thanh toán để kích hoạt tài khoản.");
+        
+        // If plan is not trial, redirect to payment
+        if (selectedPlan.plan !== 'trial') {
+          // Here you could redirect to payment page with tenant ID
+          navigate("/tenant-registration-success", { 
+            state: { 
+              tenantId: response.data.tenantId,
+              planInfo: selectedPlan 
+            }
+          });
+        } else {
+          navigate("/tenant-registration-success");
+        }
+      } else {
+        showError(response.message || "Đăng ký thất bại");
+      }
     } catch (error) {
-      showError("Đăng ký thất bại: " + error.message);
+      console.error("Registration error:", error);
+      showError("Đăng ký thất bại: " + (error.response?.data?.message || error.message));
     } finally {
       setIsSubmitting(false);
     }
@@ -95,6 +164,39 @@ const TenantRegisterPage = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
+          {/* Selected Plan Information */}
+          {selectedPlan.plan && (
+            <FormSection title="Gói dịch vụ đã chọn" icon={FaDollarSign}>
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <span className="text-sm font-medium text-gray-600">Gói:</span>
+                    <p className="text-lg font-semibold text-blue-600 capitalize">
+                      {selectedPlan.plan === 'small' && 'Dưới 300 học sinh'}
+                      {selectedPlan.plan === 'medium' && '301-700 học sinh'}
+                      {selectedPlan.plan === 'large' && '701-900 học sinh'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-600">Chu kỳ thanh toán:</span>
+                    <p className="text-lg font-semibold text-blue-600">
+                      {selectedPlan.billing === 'monthly' ? 'Hàng tháng' : 'Hàng năm'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-600">Giá:</span>
+                    <p className="text-lg font-semibold text-blue-600">
+                      {new Intl.NumberFormat('vi-VN').format(selectedPlan.price)} VNĐ
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 text-sm text-gray-600">
+                  <p>Bạn sẽ có thể thanh toán sau khi hoàn tất đăng ký trường học.</p>
+                </div>
+              </div>
+            </FormSection>
+          )}
+
           {/* School Information */}
           <FormSection title="Thông tin trường học" icon={FaSchool}>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

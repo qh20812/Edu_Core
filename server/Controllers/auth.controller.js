@@ -193,6 +193,10 @@ class AuthController {
         });
       }
 
+      // Get tenant information
+      const Tenant = require('../Models/tenant.model');
+      const tenant = await Tenant.findById(user.tenant_id).lean();
+
       res.json({
         success: true,
         message: "Lấy thông tin người dùng thành công",
@@ -208,7 +212,17 @@ class AuthController {
             last_login: user.last_login,
             created_at: user.created_at,
             updated_at: user.updated_at
-          }
+          },
+          tenant: tenant ? {
+            id: tenant._id,
+            name: tenant.name,
+            plan: tenant.plan,
+            subscription_status: tenant.subscription_status,
+            billing_cycle: tenant.billing_cycle,
+            subscription_end_date: tenant.subscription_end_date,
+            max_students: tenant.max_students,
+            trial_end_date: tenant.trial_end_date,
+          } : null
         }
       });
 

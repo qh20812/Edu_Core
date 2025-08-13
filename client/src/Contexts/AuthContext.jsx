@@ -13,6 +13,7 @@ export { AuthContext };
 // Component này sẽ "bao bọc" toàn bộ ứng dụng của bạn
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [tenant, setTenant] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
 
@@ -34,30 +35,45 @@ export const AuthProvider = ({ children }) => {
             const data = await response.json();
             if (data.success) {
               setUser(data.data.user);
+              setTenant(data.data.tenant);
+              
+              // Save tenant info to localStorage
+              if (data.data.tenant) {
+                localStorage.setItem("tenant", JSON.stringify(data.data.tenant));
+              }
             } else {
               // Token không hợp lệ, xóa khỏi localStorage
               localStorage.removeItem("token");
               localStorage.removeItem("user");
+              localStorage.removeItem("tenant");
               setToken(null);
               setUser(null);
+              setTenant(null);
             }
           } else {
             // Token hết hạn hoặc không hợp lệ
             localStorage.removeItem("token");
             localStorage.removeItem("user");
+            localStorage.removeItem("tenant");
             setToken(null);
             setUser(null);
+            setTenant(null);
           }
         } catch (error) {
           console.error("Error validating token:", error);
           // Lỗi mạng, vẫn giữ user từ localStorage nếu có
           const savedUser = localStorage.getItem("user");
+          const savedTenant = localStorage.getItem("tenant");
           if (savedUser) {
             setUser(JSON.parse(savedUser));
+          }
+          if (savedTenant) {
+            setTenant(JSON.parse(savedTenant));
           }
         }
       } else {
         setUser(null);
+        setTenant(null);
       }
       setLoading(false);
     };
@@ -80,14 +96,18 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        const { token: userToken, user: userData } = data.data;
+        const { token: userToken, user: userData, tenant: tenantData } = data.data;
 
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("token", userToken);
+        if (tenantData) {
+          localStorage.setItem("tenant", JSON.stringify(tenantData));
+          setTenant(tenantData);
+        }
         setUser(userData);
         setToken(userToken);
 
-        return { success: true, user: userData };
+        return { success: true, user: userData, tenant: tenantData };
       } else {
         return {
           success: false,
@@ -160,8 +180,10 @@ export const AuthProvider = ({ children }) => {
       // Luôn xóa dữ liệu local
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      localStorage.removeItem("tenant");
       setUser(null);
       setToken(null);
+      setTenant(null);
     }
   };
 
@@ -177,6 +199,7 @@ export const AuthProvider = ({ children }) => {
   // Giá trị sẽ được cung cấp cho toàn bộ ứng dụng
   const value = {
     user,
+    tenant,
     token,
     loading,
     isLoggedIn: !!token && !!user,
@@ -190,6 +213,15 @@ export const AuthProvider = ({ children }) => {
     isStudent: user && user.role === "student",
     isParent: user && user.role === "parent",
     tenantId: user ? user.tenant_id : null,
+    // Thông tin về subscription
+    canAddStudents: () => {
+      if (!tenant) return true; // Allow if no tenant info
+      // This should be checked on backend, but we can show UI hints
+      return true; // Actual check will be done on backend
+    },
+    subscriptionStatus: tenant ? tenant.subscription_status : null,
+    planType: tenant ? tenant.plan : null,
+    maxStudents: tenant ? tenant.max_students : null,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
