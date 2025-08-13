@@ -15,7 +15,12 @@ import TenantRegistrationSuccessPage from '../Pages/Auth/TenantRegistrationSucce
 import LandingPage from '../Pages/Landing/LandingPage';
 import AboutPage from '../Pages/Landing/AboutPage';
 import BlogPage from '../Pages/Landing/BlogPage';
-import CTPage from '../Pages/Landing/ContactPage';
+import ContactPage from '../Pages/Landing/ContactPage';
+import PricingPage from '../Pages/Landing/PricingPage';
+
+// Payment Pages
+import PaymentSuccessPage from '../Pages/Payment/PaymentSuccessPage';
+import PaymentCancelPage from '../Pages/Payment/PaymentCancelPage';
 
 // Dashboard Pages
 import DashboardPage from '../Pages/DashboardPage';
@@ -103,7 +108,12 @@ const AppRouter = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/blog" element={<BlogPage />} />
-        <Route path="/contact" element={<CTPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        
+        {/* Payment Routes */}
+        <Route path="/payment/success" element={<PaymentSuccessPage />} />
+        <Route path="/payment/cancel" element={<PaymentCancelPage />} />
         
         {/* Tenant Registration Routes */}
         <Route 

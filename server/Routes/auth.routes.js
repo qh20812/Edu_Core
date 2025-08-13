@@ -3,9 +3,10 @@ const express = require("express");
 const router = express.Router();
 const AuthController = require("../Controllers/auth.controller");
 const { authenticateToken, authorizeRoles } = require("../Middlewares/auth.middleware");
+const { checkStudentLimit, checkSubscriptionStatus } = require("../Middlewares/subscription.middleware");
 
-// FEATURE: Route đăng ký - Public
-router.post("/register", AuthController.register);
+// FEATURE: Route đăng ký - Public, but check student limit for student role
+router.post("/register", checkStudentLimit, AuthController.register);
 
 // FEATURE: Route đăng nhập - Public
 router.post("/login", AuthController.login);

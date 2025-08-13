@@ -6,9 +6,18 @@ export const tenantService = {
     return apiClient.get('/tenants/current');
   },
 
-  // Đăng ký tenant mới (trường học mới)
+  // Đăng ký tenant mới (trường học mới) với thông tin plan
   registerTenant: (tenantData) => {
     return apiClient.post('/tenants/register', tenantData);
+  },
+
+  // Đăng ký tenant với plan từ pricing page
+  registerTenantWithPlan: (tenantInfo, adminInfo, planInfo) => {
+    return apiClient.post('/tenants/register', {
+      tenantInfo,
+      adminInfo,
+      planInfo
+    });
   },
 
   // Cập nhật thông tin tenant
