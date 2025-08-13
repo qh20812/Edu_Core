@@ -11,6 +11,12 @@ import RegisterPage from '../Pages/Auth/RegisterPage';
 import TenantRegisterPage from '../Pages/Auth/TenantRegisterPageNew';
 import TenantRegistrationSuccessPage from '../Pages/Auth/TenantRegistrationSuccessPage';
 
+// Public Pages
+import LandingPage from '../Pages/Landing/LandingPage';
+import AboutPage from '../Pages/Landing/AboutPage';
+import BlogPage from '../Pages/Landing/BlogPage';
+import CTPage from '../Pages/Landing/ContactPage';
+
 // Dashboard Pages
 import DashboardPage from '../Pages/DashboardPage';
 
@@ -35,9 +41,14 @@ const ProtectedRoute = ({ children }) => {
 };
 
 // Component cho các route public (VD: trang login, nếu đã đăng nhập thì redirect)
-const PublicRoute = ({ children }) => {
+const PublicRoute = ({ children, redirectToDashboard = true }) => {
   const { isLoggedIn } = useAuth();
-  return !isLoggedIn ? children : <Navigate to="/dashboard" replace />;
+  
+  if (isLoggedIn && redirectToDashboard) {
+    return <Navigate to="/dashboard/" replace />;
+  }
+  
+  return children;
 };
 
 // Component cho các route yêu cầu quyền admin
@@ -88,7 +99,23 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
+        {/* Public Routes - Không cần auth */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/contact" element={<CTPage />} />
+        
+        {/* Tenant Registration Routes */}
+        <Route 
+          path="/tenant-register" 
+          element={<TenantRegisterPage />} 
+        />
+        <Route 
+          path="/tenant-registration-success" 
+          element={<TenantRegistrationSuccessPage />} 
+        />
+        
+        {/* Auth Routes - Redirect nếu đã đăng nhập */}
         <Route 
           path="/login" 
           element={
@@ -105,18 +132,10 @@ const AppRouter = () => {
             </PublicRoute>
           } 
         />
-        <Route 
-          path="/tenant-register" 
-          element={<TenantRegisterPage />} 
-        />
-        <Route 
-          path="/tenant-registration-success" 
-          element={<TenantRegistrationSuccessPage />} 
-        />
 
         {/* Protected Routes (yêu cầu đăng nhập) */}
         <Route
-          path="/*"
+          path="/dashboard/*"
           element={
             <ProtectedRoute>
               <DashboardLayout />
@@ -124,10 +143,7 @@ const AppRouter = () => {
           }
         >
           {/* Trang mặc định */}
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          
-          {/* Dashboard */}
-          <Route path="dashboard" element={<DashboardPage />} />
+          <Route index element={<DashboardPage />} />
           
           {/* Classes Routes */}
           <Route path="classes" element={<ClassesPage />} />
@@ -153,26 +169,36 @@ const AppRouter = () => {
           
           {/* Profile Route */}
           {/* <Route path="profile" element={<ProfilePage />} /> */}
-          
-          {/* 404 Route */}
-          <Route 
-            path="*" 
-            element={
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <h1 className="mb-4 text-4xl font-bold text-gray-400">404</h1>
-                  <p className="text-gray-600 dark:text-gray-300">Trang không tồn tại</p>
-                  <button 
-                    onClick={() => window.history.back()}
-                    className="px-4 py-2 mt-4 text-white rounded bg-primary hover:bg-primary/90"
-                  >
-                    Quay lại
-                  </button>
-                </div>
-              </div>
-            } 
-          />
         </Route>
+
+        {/* Redirect /dashboard to /dashboard/ */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Navigate to="/dashboard/" replace />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* 404 Route */}
+        <Route 
+          path="*" 
+          element={
+            <div className="flex items-center justify-center h-screen">
+              <div className="text-center">
+                <h1 className="mb-4 text-4xl font-bold text-gray-400">404</h1>
+                <p className="text-gray-600 dark:text-gray-300">Trang không tồn tại</p>
+                <button 
+                  onClick={() => window.history.back()}
+                  className="px-4 py-2 mt-4 text-white bg-blue-600 rounded hover:bg-blue-700"
+                >
+                  Quay lại
+                </button>
+              </div>
+            </div>
+          } 
+        />
       </Routes>
     </BrowserRouter>
   );

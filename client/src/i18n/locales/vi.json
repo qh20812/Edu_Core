@@ -187,5 +187,8 @@
     "physics": "Vật lý",
     "computer_science": "Tin học",
     "music": "Âm nhạc"
+  },
+  "landingPage":{
+    "title": "Trang đích"
   }
 }

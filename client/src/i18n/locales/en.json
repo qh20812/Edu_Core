@@ -187,5 +187,8 @@
     "physics": "Physics",
     "computer_science": "Computer Science",
     "music": "Music"
+  },
+  "landingPage":{
+    "title": ""
   }
 }
