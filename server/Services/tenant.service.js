@@ -6,6 +6,22 @@ class TenantService {
   // Create new tenant with plan information
   async createTenant(tenantData, adminData, planData = {}) {
     try {
+      // Check if school_code already exists (if provided)
+      if (tenantData.school_code) {
+        const existingTenant = await Tenant.findOne({ school_code: tenantData.school_code });
+        if (existingTenant) {
+          throw new Error('Mã trường đã tồn tại');
+        }
+      }
+
+      // Check if admin email already exists
+      if (adminData && adminData.email) {
+        const existingUser = await User.findOne({ email: adminData.email });
+        if (existingUser) {
+          throw new Error('Email admin đã tồn tại');
+        }
+      }
+
       // Set plan defaults based on selected plan
       const planDefaults = {
         small: { max_students: 300 },
@@ -16,12 +32,22 @@ class TenantService {
       const selectedPlan = planData.plan || 'small';
       const defaults = planDefaults[selectedPlan];
 
-      // Create tenant with plan information
+      // Create tenant with complete information
       const tenant = new Tenant({
         name: tenantData.name,
+        school_code: tenantData.school_code || null,
+        school_type: tenantData.school_type || 'high_school',
         address: tenantData.address,
+        city: tenantData.city,
+        province: tenantData.province,
+        postal_code: tenantData.postal_code,
         contact_email: tenantData.contact_email,
         contact_phone: tenantData.contact_phone,
+        website: tenantData.website || null,
+        established_year: tenantData.established_year || null,
+        total_students: tenantData.total_students || 0,
+        total_teachers: tenantData.total_teachers || 0,
+        description: tenantData.description || null,
         plan: selectedPlan,
         billing_cycle: planData.billing_cycle || 'monthly',
         max_students: defaults.max_students,
@@ -38,7 +64,7 @@ class TenantService {
         const adminUser = new User({
           tenant_id: savedTenant._id,
           email: adminData.email,
-          password: hashedPassword,
+          password_hash: hashedPassword, // Fix: should be password_hash not password
           full_name: adminData.full_name,
           phone: adminData.phone,
           role: 'school_admin',
@@ -178,7 +204,8 @@ class TenantService {
       const searchQuery = search ? {
         $or: [
           { name: { $regex: search, $options: 'i' } },
-          { contact_email: { $regex: search, $options: 'i' } }
+          { contact_email: { $regex: search, $options: 'i' } },
+          { school_code: { $regex: search, $options: 'i' } }
         ]
       } : {};
 
@@ -191,7 +218,7 @@ class TenantService {
       const total = await Tenant.countDocuments(searchQuery);
 
       return {
-        tenants,
+        data: tenants,
         pagination: {
           page,
           limit,
@@ -201,6 +228,53 @@ class TenantService {
       };
     } catch (error) {
       console.error('Error getting all tenants:', error);
+      throw error;
+    }
+  }
+
+  // Approve tenant
+  async approveTenant(tenantId) {
+    try {
+      const tenant = await Tenant.findByIdAndUpdate(
+        tenantId,
+        { 
+          status: 'active',
+          approved_at: new Date()
+        },
+        { new: true }
+      );
+
+      if (!tenant) {
+        throw new Error('Tenant not found');
+      }
+
+      return tenant;
+    } catch (error) {
+      console.error('Error approving tenant:', error);
+      throw error;
+    }
+  }
+
+  // Reject tenant
+  async rejectTenant(tenantId, reason) {
+    try {
+      const tenant = await Tenant.findByIdAndUpdate(
+        tenantId,
+        { 
+          status: 'rejected',
+          rejection_reason: reason,
+          rejected_at: new Date()
+        },
+        { new: true }
+      );
+
+      if (!tenant) {
+        throw new Error('Tenant not found');
+      }
+
+      return tenant;
+    } catch (error) {
+      console.error('Error rejecting tenant:', error);
       throw error;
     }
   }

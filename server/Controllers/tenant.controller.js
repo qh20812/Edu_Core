@@ -11,13 +11,15 @@ class TenantController {
         planInfo 
       } = req.body;
 
+      console.log('Received registration data:', { tenantInfo, adminInfo, planInfo });
+
       // Validate required fields
       if (!tenantInfo || !adminInfo) {
         return errorResponse(res, 'Tenant information and admin information are required', 400);
       }
 
       if (!tenantInfo.name || !adminInfo.email || !adminInfo.password || !adminInfo.full_name) {
-        return errorResponse(res, 'Missing required fields', 400);
+        return errorResponse(res, 'Missing required fields: school name, admin email, password, or full name', 400);
       }
 
       // Validate plan if provided
@@ -25,12 +27,31 @@ class TenantController {
         return errorResponse(res, 'Invalid plan selected', 400);
       }
 
+      // Prepare tenant data with complete form information
+      const completeTenanInfo = {
+        name: tenantInfo.name,
+        school_code: tenantInfo.school_code || null,
+        school_type: tenantInfo.school_type || 'high_school',
+        address: tenantInfo.address,
+        city: tenantInfo.city,
+        province: tenantInfo.province,
+        postal_code: tenantInfo.postal_code,
+        contact_email: tenantInfo.contact_email,
+        contact_phone: tenantInfo.contact_phone,
+        website: tenantInfo.website,
+        established_year: tenantInfo.established_year ? parseInt(tenantInfo.established_year) : null,
+        total_students: tenantInfo.total_students ? parseInt(tenantInfo.total_students) : 0,
+        total_teachers: tenantInfo.total_teachers ? parseInt(tenantInfo.total_teachers) : 0,
+        description: tenantInfo.description,
+      };
+
       // Create tenant
-      const tenant = await TenantService.createTenant(tenantInfo, adminInfo, planInfo);
+      const tenant = await TenantService.createTenant(completeTenanInfo, adminInfo, planInfo);
 
       return successResponse(res, 'Tenant registered successfully', {
         tenantId: tenant._id,
         name: tenant.name,
+        school_code: tenant.school_code,
         plan: tenant.plan,
         subscriptionStatus: tenant.subscription_status,
         trialEndDate: tenant.trial_end_date,
@@ -40,7 +61,10 @@ class TenantController {
       
       if (error.code === 11000) {
         // Duplicate key error
-        return errorResponse(res, 'Email already exists', 409);
+        if (error.keyPattern && error.keyPattern.school_code) {
+          return errorResponse(res, 'Mã trường đã tồn tại', 409);
+        }
+        return errorResponse(res, 'Dữ liệu đã tồn tại', 409);
       }
       
       return errorResponse(res, error.message, 500);
@@ -153,6 +177,65 @@ class TenantController {
       return successResponse(res, 'Tenant subscription updated successfully', updatedTenant);
     } catch (error) {
       console.error('Error in updateSubscription:', error);
+      return errorResponse(res, error.message, 500);
+    }
+  }
+
+  // Approve tenant (for sys_admin)
+  async approveTenant(req, res) {
+    try {
+      const { tenantId } = req.params;
+
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant ID is required', 400);
+      }
+
+      // Check if user is sys_admin
+      if (req.user.role !== 'sys_admin') {
+        return errorResponse(res, 'Access denied. System admin required.', 403);
+      }
+
+      const tenant = await TenantService.approveTenant(tenantId);
+
+      if (!tenant) {
+        return errorResponse(res, 'Tenant not found', 404);
+      }
+
+      return successResponse(res, 'Tenant approved successfully', tenant);
+    } catch (error) {
+      console.error('Error in approveTenant:', error);
+      return errorResponse(res, error.message, 500);
+    }
+  }
+
+  // Reject tenant (for sys_admin) 
+  async rejectTenant(req, res) {
+    try {
+      const { tenantId } = req.params;
+      const { reason } = req.body;
+
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant ID is required', 400);
+      }
+
+      if (!reason) {
+        return errorResponse(res, 'Rejection reason is required', 400);
+      }
+
+      // Check if user is sys_admin
+      if (req.user.role !== 'sys_admin') {
+        return errorResponse(res, 'Access denied. System admin required.', 403);
+      }
+
+      const tenant = await TenantService.rejectTenant(tenantId, reason);
+
+      if (!tenant) {
+        return errorResponse(res, 'Tenant not found', 404);
+      }
+
+      return successResponse(res, 'Tenant rejected successfully', tenant);
+    } catch (error) {
+      console.error('Error in rejectTenant:', error);
       return errorResponse(res, error.message, 500);
     }
   }

@@ -94,9 +94,19 @@ const TenantRegisterPage = () => {
       // Prepare data in the format expected by backend
       const tenantInfo = {
         name: data.schoolName,
-        address: `${data.address}, ${data.city}, ${data.province}`,
+        school_code: data.schoolCode,
+        school_type: data.schoolType || selectedSchoolType,
+        address: data.address,
+        city: data.city,
+        province: data.province,
+        postal_code: data.postalCode,
         contact_email: data.email,
         contact_phone: data.phone,
+        website: data.website,
+        established_year: data.establishedYear,
+        total_students: data.totalStudents,
+        total_teachers: data.totalTeachers,
+        description: data.description,
       };
 
       const adminInfo = {
@@ -104,6 +114,7 @@ const TenantRegisterPage = () => {
         password: data.password,
         full_name: data.adminFullName,
         phone: data.adminPhone,
+        position: data.adminPosition,
       };
 
       const planInfo = {
@@ -111,12 +122,16 @@ const TenantRegisterPage = () => {
         billing_cycle: selectedPlan.billing,
       };
 
+      console.log("Sending data to backend:", { tenantInfo, adminInfo, planInfo });
+
       // Call the actual registration API
       const response = await tenantService.registerTenantWithPlan(
         tenantInfo,
         adminInfo,
         planInfo
       );
+
+      console.log("Registration response:", response);
 
       if (response.success) {
         showSuccess("Đăng ký thành công! Bạn có thể tiến hành thanh toán để kích hoạt tài khoản.");

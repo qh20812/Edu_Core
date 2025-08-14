@@ -146,7 +146,22 @@
     "profile": "Hồ sơ",
     "grading": "Chấm điểm",
     "grades": "Điểm số",
-    "schedule": "Thời khóa biểu"
+    "schedule": "Thời khóa biểu",
+    "children": "Con em",
+    "progress": "Tiến độ",
+    "schools": "Trường học",
+    "subjects": "Môn học",
+    "announcements": "Thông báo",
+    "reports": "Báo cáo",
+    "tenantManagement": "Quản lý trường học",
+    "systemAnalytics": "Thống kê hệ thống",
+    "globalUserManagement": "Quản lý người dùng toàn cầu",
+    "systemLogs": "Nhật ký hệ thống",
+    "serverMonitor": "Giám sát máy chủ",
+    "schoolUsers": "Người dùng trường",
+    "schoolClasses": "Lớp học",
+    "schoolReports": "Báo cáo trường",
+    "schoolSettings": "Cài đặt trường"
   },
   "classes": {
     "title": "Quản lý lớp học",
