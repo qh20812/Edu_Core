@@ -4,7 +4,22 @@ const Schema = mongoose.Schema;
 const tenantSchema = new Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 255 },
+    school_code: { 
+      type: String, 
+      required: false, 
+      trim: true, 
+      unique: true, 
+      sparse: true // Allows null/undefined values but ensures uniqueness when present
+    },
+    school_type: {
+      type: String,
+      enum: ['elementary', 'middle_school', 'high_school', 'university', 'vocational', 'other'],
+      default: 'high_school'
+    },
     address: { type: String, required: false },
+    city: { type: String, required: false, trim: true },
+    province: { type: String, required: false, trim: true },
+    postal_code: { type: String, required: false, trim: true },
     contact_email: {
       type: String,
       required: false,
@@ -12,6 +27,11 @@ const tenantSchema = new Schema(
       maxlength: 255,
     },
     contact_phone: { type: String, required: false, trim: true, maxlength: 20 },
+    website: { type: String, required: false, trim: true },
+    established_year: { type: Number, required: false },
+    total_students: { type: Number, required: false, default: 0 },
+    total_teachers: { type: Number, required: false, default: 0 },
+    description: { type: String, required: false, trim: true },
     is_active: { type: Boolean, default: true },
     
     // Subscription and Plan Information

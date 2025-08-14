@@ -35,7 +35,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const navItems = [
-    { path: '/dashboard', icon: <FaHome />, label: 'navigation.dashboard', roles: ['student', 'teacher', 'parent', 'admin'] },
+    { path: '/dashboard', icon: <FaHome />, label: 'navigation.dashboard', roles: ['student', 'teacher', 'parent', 'school_admin', 'sys_admin'] },
     
     // Student specific
     { path: '/assignments', icon: <FaTasks />, label: 'navigation.assignments', roles: ['student'] },
@@ -53,12 +53,20 @@ const Sidebar = () => {
     { path: '/children', icon: <FaUserGraduate />, label: 'navigation.children', roles: ['parent'] },
     { path: '/progress', icon: <FaChartBar />, label: 'navigation.progress', roles: ['parent'] },
     
-    // Admin specific
-    { path: '/users', icon: <FaUsersCog />, label: 'navigation.users', roles: ['admin'] },
-    { path: '/schools', icon: <FaBuilding />, label: 'navigation.schools', roles: ['admin'] },
-    { path: '/subjects', icon: <FaBook />, label: 'navigation.subjects', roles: ['admin'] },
-    { path: '/announcements', icon: <FaBullhorn />, label: 'navigation.announcements', roles: ['admin'] },
-    { path: '/reports', icon: <FaDatabase />, label: 'navigation.reports', roles: ['admin'] },
+    // System Admin specific
+    { path: '/admin/system/tenant-management', icon: <FaBuilding />, label: 'navigation.tenantManagement', roles: ['sys_admin'] },
+    { path: '/admin/system/system-analytics', icon: <FaChartBar />, label: 'navigation.systemAnalytics', roles: ['sys_admin'] },
+    { path: '/admin/system/user-management', icon: <FaUserShield />, label: 'navigation.globalUserManagement', roles: ['sys_admin'] },
+    { path: '/admin/system/system-logs', icon: <FaDatabase />, label: 'navigation.systemLogs', roles: ['sys_admin'] },
+    { path: '/admin/system/server-monitor', icon: <FaCubes />, label: 'navigation.serverMonitor', roles: ['sys_admin'] },
+    
+    // School Admin specific
+    { path: '/admin/school/users', icon: <FaUsersCog />, label: 'navigation.schoolUsers', roles: ['school_admin'] },
+    { path: '/admin/school/classes', icon: <FaUsers />, label: 'navigation.schoolClasses', roles: ['school_admin'] },
+    { path: '/admin/school/subjects', icon: <FaBook />, label: 'navigation.subjects', roles: ['school_admin'] },
+    { path: '/admin/school/announcements', icon: <FaBullhorn />, label: 'navigation.announcements', roles: ['school_admin'] },
+    { path: '/admin/school/reports', icon: <FaFileAlt />, label: 'navigation.schoolReports', roles: ['school_admin'] },
+    { path: '/admin/school/settings', icon: <FaCog />, label: 'navigation.schoolSettings', roles: ['school_admin'] },
   ];
 
   const navLinkClass = ({ isActive }) =>
