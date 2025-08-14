@@ -63,11 +63,11 @@ const Sidebar = () => {
 
   const navLinkClass = ({ isActive }) =>
     cn(
-      'group flex items-center p-3 rounded-xl transition-all duration-200 relative overflow-hidden',
-      'text-slate-300 hover:text-white',
+      'group flex items-center p-3 rounded-lg transition-all duration-200 relative overflow-hidden',
+      'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400',
       isActive 
-        ? 'bg-primary text-white shadow-lg shadow-primary/25' 
-        : 'hover:bg-slate-700/50 hover:shadow-md'
+        ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-400' 
+        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
     );
 
   const handleLogout = () => {
@@ -77,24 +77,29 @@ const Sidebar = () => {
 
   return (
     <aside className={cn(
-      'fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-slate-800 to-slate-900 border-r border-slate-700/50 transition-all duration-300 ease-in-out shadow-xl',
+      'fixed inset-y-0 left-0 z-50 flex flex-col border-r transition-all duration-300 ease-in-out shadow-lg',
+      'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700',
       isSidebarOpen ? 'w-72' : 'w-16'
     )}>
       {/* Brand Section */}
-      <div className="relative flex items-center justify-between h-16 px-4 border-b bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
+      <div className={cn(
+        'relative flex items-center justify-between h-16 px-4 border-b',
+        'bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700',
+        'border-gray-200 dark:border-gray-700'
+      )}>
         <div className="flex items-center justify-center w-full">
           {isSidebarOpen ? (
             <div className="flex items-center">
-              <div className="flex items-center justify-center w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-primary to-secondary">
-                <FaGraduationCap className="text-lg text-white" />
+              <div className="flex items-center justify-center w-8 h-8 mr-3 bg-white rounded-lg dark:bg-gray-100">
+                <FaGraduationCap className="text-lg text-blue-600" />
               </div>
-              <span className="text-xl font-bold text-transparent bg-gradient-to-r from-white to-slate-300 bg-clip-text">
+              <span className="text-xl font-bold text-white">
                 EduCore
               </span>
             </div>
           ) : (
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary">
-              <span className="text-lg font-bold text-white">EC</span>
+            <div className="flex items-center justify-center w-10 h-10 bg-white rounded-lg dark:bg-gray-100">
+              <FaGraduationCap className="text-lg text-blue-600" />
             </div>
           )}
         </div>
@@ -102,18 +107,21 @@ const Sidebar = () => {
 
       {/* User Profile Section */}
       {isSidebarOpen && (
-        <div className="p-4 border-b border-slate-700/50">
+        <div className={cn(
+          'p-4 border-b',
+          'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+        )}>
           <div className="flex items-center space-x-3">
             <img
-              className="w-10 h-10 border-2 rounded-full border-primary/30"
+              className="w-10 h-10 border-2 border-blue-200 rounded-full dark:border-blue-300"
               src={`https://ui-avatars.com/api/?name=${user?.full_name}&background=3b82f6&color=fff`}
               alt={user?.full_name}
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
+              <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-100">
                 {user?.full_name}
               </p>
-              <p className="text-xs truncate text-slate-400">
+              <p className="text-xs text-gray-500 truncate dark:text-gray-400">
                 {t(`roles.${user?.role}`)}
               </p>
             </div>
@@ -122,12 +130,12 @@ const Sidebar = () => {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) =>
           hasRole(item.roles) && (
             <NavLink to={item.path} key={item.path} className={navLinkClass}>
               <div className="flex items-center w-full">
-                <span className="flex-shrink-0 text-xl transition-transform duration-200 group-hover:scale-110">
+                <span className="flex-shrink-0 text-lg transition-transform duration-200 group-hover:scale-110">
                   {item.icon}
                 </span>
                 {isSidebarOpen && (
@@ -137,8 +145,9 @@ const Sidebar = () => {
                 )}
               </div>
               {!isSidebarOpen && (
-                <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 border rounded-md opacity-0 left-full bg-slate-900 group-hover:opacity-100 group-hover:visible whitespace-nowrap border-slate-700/50">
+                <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 bg-gray-900 border border-gray-700 rounded-md opacity-0 left-full group-hover:opacity-100 group-hover:visible whitespace-nowrap dark:bg-gray-700 dark:border-gray-600">
                   {t(item.label)}
+                  <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-1/2 -translate-y-1/2 dark:bg-gray-700"></div>
                 </div>
               )}
             </NavLink>
@@ -147,15 +156,19 @@ const Sidebar = () => {
       </nav>
 
       {/* Bottom Section */}
-      <div className="px-3 py-4 space-y-1 border-t border-slate-700/50 bg-slate-900/30">
+      <div className={cn(
+        'px-3 py-4 space-y-1 border-t',
+        'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+      )}>
         <NavLink to="/settings" className={navLinkClass}>
           <div className="flex items-center w-full">
-            <FaCog className="flex-shrink-0 text-xl transition-transform duration-200 group-hover:rotate-90" />
+            <FaCog className="flex-shrink-0 text-lg transition-transform duration-200 group-hover:rotate-90" />
             {isSidebarOpen && <span className="ml-3 font-medium">{t('navigation.settings')}</span>}
           </div>
           {!isSidebarOpen && (
-            <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 border rounded-md opacity-0 left-full bg-slate-900 group-hover:opacity-100 group-hover:visible whitespace-nowrap border-slate-700/50">
+            <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 bg-gray-900 border border-gray-700 rounded-md opacity-0 left-full group-hover:opacity-100 group-hover:visible whitespace-nowrap dark:bg-gray-700 dark:border-gray-600">
               {t('navigation.settings')}
+              <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-1/2 -translate-y-1/2 dark:bg-gray-700"></div>
             </div>
           )}
         </NavLink>
@@ -164,16 +177,17 @@ const Sidebar = () => {
           onClick={handleLogout} 
           className={cn(
             navLinkClass({isActive: false}), 
-            'w-full text-left hover:bg-danger/10 hover:text-danger-foreground'
+            'w-full text-left hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400'
           )}
         >
           <div className="flex items-center w-full">
-            <FaSignOutAlt className="flex-shrink-0 text-xl transition-transform duration-200 group-hover:translate-x-1" />
+            <FaSignOutAlt className="flex-shrink-0 text-lg transition-transform duration-200 group-hover:translate-x-1" />
             {isSidebarOpen && <span className="ml-3 font-medium">{t('auth.logout')}</span>}
           </div>
           {!isSidebarOpen && (
-            <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 border rounded-md opacity-0 left-full bg-slate-900 group-hover:opacity-100 group-hover:visible whitespace-nowrap border-slate-700/50">
+            <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 bg-gray-900 border border-gray-700 rounded-md opacity-0 left-full group-hover:opacity-100 group-hover:visible whitespace-nowrap dark:bg-gray-700 dark:border-gray-600">
               {t('auth.logout')}
+              <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-1/2 -translate-y-1/2 dark:bg-gray-700"></div>
             </div>
           )}
         </button>

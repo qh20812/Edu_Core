@@ -110,7 +110,8 @@
     "error": "Error",
     "warning": "Warning",
     "update": "Update",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "notifications": "Notifications"
   },
   "auth": {
     "login": "Login",

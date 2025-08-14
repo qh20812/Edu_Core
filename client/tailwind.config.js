@@ -43,6 +43,35 @@ export default{
                     DEFAULT: '#f59e0b',
                     foreground: '#FFFFFF'
                 },
+            },
+            animation: {
+                'shimmer': 'shimmer 2s infinite linear',
+                'glow': 'glow 2s ease-in-out infinite alternate',
+                'sparkle': 'sparkle 1.5s ease-in-out infinite',
+                'fade-in': 'fadeIn 0.5s ease-in-out',
+                'slide-up': 'slideUp 0.3s ease-out'
+            },
+            keyframes: {
+                shimmer: {
+                  '0%': { transform: 'translateX(-100%)' },
+                  '100%': { transform: 'translateX(100%)' }
+                },
+                glow: {
+                  '0%': { boxShadow: '0 0 5px rgba(255, 215, 0, 0.3)' },
+                  '100%': { boxShadow: '0 0 20px rgba(255, 215, 0, 0.8)' }
+                },
+                sparkle: {
+                  '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+                  '50%': { opacity: '0.5', transform: 'scale(1.05)' }
+                },
+                fadeIn: {
+                  '0%': { opacity: '0', transform: 'translateY(10px)' },
+                  '100%': { opacity: '1', transform: 'translateY(0)' }
+                },
+                slideUp: {
+                  '0%': { transform: 'translateY(100%)', opacity: '0' },
+                  '100%': { transform: 'translateY(0)', opacity: '1' }
+                }
             }
         }
     },
