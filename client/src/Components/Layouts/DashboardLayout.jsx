@@ -3,12 +3,13 @@ import { Outlet } from 'react-router-dom';
 import { useUI } from '../../Hooks/useUI';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import ToastContainer from '../UI/ToastContainer';
 
 const DashboardLayout = () => {
   const { isSidebarOpen } = useUI();
 
   return (
-    <div className="flex h-screen bg-background text-foreground">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Sidebar />
       {/* Main content area with dynamic left margin to account for fixed sidebar */}
       <div 
@@ -22,6 +23,9 @@ const DashboardLayout = () => {
           <Outlet />
         </main>
       </div>
+      
+      {/* Toast notifications */}
+      <ToastContainer />
     </div>
   );
 };

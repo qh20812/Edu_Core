@@ -1,12 +1,41 @@
 import React, { createContext, useState, useEffect } from 'react';
 
+// Helper function để detect system preference
+const getSystemTheme = () => {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return 'light';
+};
+
+// Helper function để lấy theme từ localStorage hoặc system
+const getInitialTheme = () => {
+  const savedTheme = localStorage.getItem('edu-theme');
+  if (savedTheme) {
+    return savedTheme;
+  }
+  return getSystemTheme();
+};
+
+// Helper function để lấy sidebar state từ localStorage
+const getInitialSidebarState = () => {
+  const savedState = localStorage.getItem('edu-sidebar-open');
+  if (savedState !== null) {
+    return JSON.parse(savedState);
+  }
+  // Mặc định: desktop mở, mobile đóng
+  return window.innerWidth >= 1024;
+};
+
 // 1. Tạo Context với các giá trị mặc định
 const UIContext = createContext({
   theme: 'light',
+  isDarkMode: false,
   isSidebarOpen: true,
   isLoading: false,
   notifications: [],
   toggleTheme: () => {},
+  toggleDarkMode: () => {},
   toggleSidebar: () => {},
   setLoading: () => {},
   addNotification: () => {},
@@ -20,49 +49,58 @@ export { UIContext };
 // 2. Tạo Provider Component
 export const UIProvider = ({ children }) => {
   // FEATURE: Theme management (light/dark mode)
-  // State để quản lý theme (sáng/tối)
-  // Lấy giá trị từ localStorage để ghi nhớ lựa chọn của người dùng, mặc định là 'light'
-  const [theme, setTheme] = useState(() => localStorage.getItem('edu-theme') || 'light');
+  const [theme, setTheme] = useState(() => getInitialTheme());
   
-  // FEATURE: Sidebar management
-  // State để quản lý trạng thái của thanh sidebar (responsive)
-  const [isSidebarOpen, setSidebarOpen] = useState(() => {
-    // Trên mobile mặc định đóng sidebar, desktop thì mở
-    return window.innerWidth >= 1024;
-  });
+  // FEATURE: Sidebar management với localStorage
+  const [isSidebarOpen, setSidebarOpen] = useState(() => getInitialSidebarState());
 
   // FEATURE: Global loading state
-  // State để quản lý trạng thái loading toàn cục
   const [isLoading, setIsLoading] = useState(false);
 
   // FEATURE: Notification system
-  // State để quản lý thông báo (toast notifications)
   const [notifications, setNotifications] = useState([]);
 
-  // FEATURE: Responsive sidebar handling
-  // useEffect để xử lý responsive sidebar khi resize màn hình
+  // FEATURE: Responsive sidebar handling và system theme detection
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
         setSidebarOpen(false);
+        localStorage.setItem('edu-sidebar-open', 'false');
       } else {
-        setSidebarOpen(true);
+        const savedState = localStorage.getItem('edu-sidebar-open');
+        if (savedState === null) {
+          setSidebarOpen(true);
+          localStorage.setItem('edu-sidebar-open', 'true');
+        }
+      }
+    };
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e) => {
+      // Chỉ cập nhật nếu người dùng chưa manually set theme
+      const savedTheme = localStorage.getItem('edu-theme');
+      if (!savedTheme) {
+        setTheme(e.matches ? 'dark' : 'light');
       }
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    };
   }, []);
 
   // FEATURE: Dark mode class management
-  // useEffect để cập nhật class trên thẻ <html> mỗi khi theme thay đổi
-  // Giúp Tailwind CSS nhận diện và áp dụng style cho dark mode
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
 
-    // Lưu lựa chọn theme vào localStorage với prefix dự án
+    // Lưu theme vào localStorage (chỉ khi user manually thay đổi)
     localStorage.setItem('edu-theme', theme);
   }, [theme]);
 
@@ -71,9 +109,16 @@ export const UIProvider = ({ children }) => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
-  // FUNCTION: toggleSidebar - Bật/tắt sidebar
+  // FUNCTION: toggleDarkMode - Alias cho toggleTheme
+  // (Removed unused toggleDarkMode variable assignment)
+
+  // FUNCTION: toggleSidebar - Bật/tắt sidebar và lưu vào localStorage
   const toggleSidebar = () => {
-    setSidebarOpen((prev) => !prev);
+    setSidebarOpen((prev) => {
+      const newState = !prev;
+      localStorage.setItem('edu-sidebar-open', JSON.stringify(newState));
+      return newState;
+    });
   };
 
   // FUNCTION: setLoading - Quản lý trạng thái loading toàn cục

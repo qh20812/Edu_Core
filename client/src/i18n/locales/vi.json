@@ -110,7 +110,8 @@
     "error": "Lỗi",
     "warning": "Cảnh báo",
     "update": "Cập nhật",
-    "unknown": "Không xác định"
+    "unknown": "Không xác định",
+    "notifications": "Thông báo"
   },
   "auth": {
     "login": "Đăng nhập",

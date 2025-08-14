@@ -17,6 +17,7 @@ const questionRoutes = require('./Routes/question.routes'); // Quản lý câu h
 const examRoutes = require('./Routes/exam.routes'); // Quản lý đề thi
 const paymentRoutes = require('./Routes/payment.routes'); // Quản lý thanh toán
 const tenantRoutes = require('./Routes/tenant.routes'); // Quản lý tenant
+const notificationRoutes = require('./Routes/notification.routes'); // Quản lý thông báo
 
 // MIDDLEWARE: Xử lý lỗi chung
 const errorHandler = require('./Middlewares/error.middleware');
@@ -82,6 +83,11 @@ console.log("✅ Payment routes loaded.");
 console.log("Loading tenant routes...");
 app.use('/api/tenants', tenantRoutes);
 console.log("✅ Tenant routes loaded.");
+
+// ROUTE: Quản lý thông báo (lấy danh sách, đánh dấu đã đọc, xóa)
+console.log("Loading notification routes...");
+app.use('/api/notifications', notificationRoutes);
+console.log("✅ Notification routes loaded.");
 // --- KẾT THÚC ĐĂNG KÝ ROUTES ---
 
 

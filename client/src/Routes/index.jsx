@@ -24,6 +24,7 @@ import PaymentCancelPage from '../Pages/Payment/PaymentCancelPage';
 
 // Dashboard Pages
 import DashboardPage from '../Pages/DashboardPage';
+import TestPage from '../Pages/TestPage';
 
 // Feature Pages
 import ClassesPage from '../Pages/ClassesPage';
@@ -154,6 +155,9 @@ const AppRouter = () => {
         >
           {/* Trang mặc định */}
           <Route index element={<DashboardPage />} />
+          
+          {/* Test page để kiểm tra components */}
+          <Route path="test" element={<TestPage />} />
           
           {/* Classes Routes */}
           <Route path="classes" element={<ClassesPage />} />
