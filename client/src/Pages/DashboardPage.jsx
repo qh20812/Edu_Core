@@ -2,8 +2,8 @@ import React from 'react';
 import { useAuth } from '../Hooks/useAuth';
 
 // Import các trang dashboard cụ thể cho từng vai trò
-import SystemDashboardPage from './Admin/SystemDashboardPage';
-import SchoolDashboardPage from './Admin/SchoolDashboardPage';
+import SystemDashboardPage from './Admin/System/SystemDashboardPage';
+import SchoolDashboardPage from './Admin/School/SchoolDashboardPage';
 import TeacherDashboardPage from './Teacher/TeacherDashboardPage';
 import StudentDashboardPage from './Student/StudentDashboardPage';
 
@@ -29,7 +29,7 @@ const DashboardPage = () => {
       return (
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-4">
+            <h1 className="mb-4 text-2xl font-bold text-gray-600 dark:text-gray-300">
               Chào mừng đến với EduCore!
             </h1>
             <p className="text-gray-500 dark:text-gray-400">

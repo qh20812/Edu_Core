@@ -12,6 +12,9 @@ router.get('/stats', SystemController.getSystemStats);
 // Dashboard stats for sys_admin
 router.get('/dashboard-stats', SystemController.getDashboardStats);
 
+// Analytics overview (combines multiple stats)
+router.get('/analytics', SystemController.getAnalytics);
+
 // Server health monitoring
 router.get('/health', SystemController.getServerHealth);
 

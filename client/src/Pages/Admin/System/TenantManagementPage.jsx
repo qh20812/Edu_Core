@@ -25,7 +25,21 @@ const TenantManagementPage = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setTenants(data.data || []);
+        console.log('Tenant API response:', data); // Debug log
+        
+        // Ensure we always set an array
+        let tenantsArray = [];
+        if (data.data) {
+          if (Array.isArray(data.data)) {
+            tenantsArray = data.data;
+          } else if (data.data.data && Array.isArray(data.data.data)) {
+            tenantsArray = data.data.data;
+          } else {
+            console.warn('Unexpected data structure:', data.data);
+          }
+        }
+        
+        setTenants(tenantsArray);
       } else {
         showError('Không thể tải danh sách trường học');
       }
@@ -86,7 +100,7 @@ const TenantManagementPage = () => {
     }
   };
 
-  const filteredTenants = tenants.filter(tenant => {
+  const filteredTenants = Array.isArray(tenants) ? tenants.filter(tenant => {
     const matchesSearch = tenant.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          tenant.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          tenant.email?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -94,7 +108,7 @@ const TenantManagementPage = () => {
     const matchesStatus = statusFilter === 'all' || tenant.status === statusFilter;
     
     return matchesSearch && matchesStatus;
-  });
+  }) : [];
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -113,9 +127,9 @@ const TenantManagementPage = () => {
   };
 
   const TenantDetailModal = ({ tenant, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
             Chi tiết trường học
           </h3>
@@ -178,13 +192,13 @@ const TenantManagementPage = () => {
           </div>
 
           {tenant.status === 'pending' && (
-            <div className="flex space-x-3 pt-4 border-t">
+            <div className="flex pt-4 space-x-3 border-t">
               <button
                 onClick={() => {
                   handleApprove(tenant._id);
                   onClose();
                 }}
-                className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                className="flex-1 px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
               >
                 <FaCheck className="inline mr-2" />
                 Phê duyệt
@@ -197,7 +211,7 @@ const TenantManagementPage = () => {
                     onClose();
                   }
                 }}
-                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                className="flex-1 px-4 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
               >
                 <FaTimes className="inline mr-2" />
                 Từ chối
@@ -212,7 +226,7 @@ const TenantManagementPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="w-32 h-32 border-b-2 border-blue-600 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -229,16 +243,16 @@ const TenantManagementPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-4 mb-6 sm:flex-row">
         <div className="flex-1">
           <div className="relative">
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
             <input
               type="text"
               placeholder="Tìm kiếm theo tên, mã trường, email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
         </div>
@@ -259,11 +273,11 @@ const TenantManagementPage = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-1 gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg dark:bg-blue-900">
-              <FaBuilding className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <FaBuilding className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tổng số trường</p>
@@ -272,10 +286,10 @@ const TenantManagementPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg dark:bg-yellow-900">
-              <FaUsers className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              <FaUsers className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Chờ duyệt</p>
@@ -286,10 +300,10 @@ const TenantManagementPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg dark:bg-green-900">
-              <FaCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
+              <FaCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Hoạt động</p>
@@ -300,10 +314,10 @@ const TenantManagementPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center">
             <div className="p-2 bg-red-100 rounded-lg dark:bg-red-900">
-              <FaTimes className="h-6 w-6 text-red-600 dark:text-red-400" />
+              <FaTimes className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Từ chối</p>
@@ -316,39 +330,39 @@ const TenantManagementPage = () => {
       </div>
 
       {/* Tenants Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
                   Trường học
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
                   Mã trường
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
                   Loại trường
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
                   Trạng thái
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
                   Ngày đăng ký
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
                   Thao tác
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
               {filteredTenants.map((tenant) => (
                 <tr key={tenant._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                          <FaBuilding className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      <div className="flex-shrink-0 w-10 h-10">
+                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg dark:bg-blue-900">
+                          <FaBuilding className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                       </div>
                       <div className="ml-4">
@@ -361,19 +375,19 @@ const TenantManagementPage = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-white">
                     {tenant.code}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-white">
                     {tenant.school_type}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getStatusBadge(tenant.status)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-white">
                     {new Date(tenant.createdAt).toLocaleDateString('vi-VN')}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => {
@@ -412,8 +426,8 @@ const TenantManagementPage = () => {
         </div>
 
         {filteredTenants.length === 0 && (
-          <div className="text-center py-12">
-            <FaBuilding className="mx-auto h-12 w-12 text-gray-400" />
+          <div className="py-12 text-center">
+            <FaBuilding className="w-12 h-12 mx-auto text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
               Không có trường học nào
             </h3>

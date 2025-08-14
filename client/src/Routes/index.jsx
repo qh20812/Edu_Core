@@ -30,6 +30,13 @@ import TestPage from '../Pages/TestPage';
 import SystemDashboardPage from '../Pages/Admin/System/SystemDashboardPage';
 import TenantManagementPage from '../Pages/Admin/System/TenantManagementPage';
 import SystemAnalyticsPage from '../Pages/Admin/System/SystemAnalyticsPage';
+import SchoolDashboardPage from '../Pages/Admin/School/SchoolDashboardPage';
+import SchoolUsersPage from '../Pages/Admin/School/SchoolUsersPage';
+import SchoolClassesPage from '../Pages/Admin/School/SchoolClassesPage';
+import SchoolSubjectsPage from '../Pages/Admin/School/SchoolSubjectsPage';
+import SchoolAnnouncementsPage from '../Pages/Admin/School/SchoolAnnouncementsPage';
+import SchoolReportsPage from '../Pages/Admin/School/SchoolReportsPage';
+import SchoolSettingsPage from '../Pages/Admin/School/SchoolSettingsPage';
 
 // Feature Pages
 import ClassesPage from '../Pages/ClassesPage';
@@ -64,6 +71,7 @@ const RoleDashboard = () => {
     case 'sys_admin':
       return <SystemDashboardPage />;
     case 'school_admin':
+      return <SchoolDashboardPage />;
     case 'teacher':
     case 'student':
     case 'parent':
@@ -227,6 +235,56 @@ const AppRouter = () => {
               <SystemAdminRoute>
                 <SystemAnalyticsPage />
               </SystemAdminRoute>
+            } 
+          />
+          
+          {/* School Admin Routes */}
+          <Route 
+            path="admin/school/users" 
+            element={
+              <AdminRoute>
+                <SchoolUsersPage />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="admin/school/classes" 
+            element={
+              <AdminRoute>
+                <SchoolClassesPage />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="admin/school/subjects" 
+            element={
+              <AdminRoute>
+                <SchoolSubjectsPage />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="admin/school/announcements" 
+            element={
+              <AdminRoute>
+                <SchoolAnnouncementsPage />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="admin/school/reports" 
+            element={
+              <AdminRoute>
+                <SchoolReportsPage />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="admin/school/settings" 
+            element={
+              <AdminRoute>
+                <SchoolSettingsPage />
+              </AdminRoute>
             } 
           />
           
