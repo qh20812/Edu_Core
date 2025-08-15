@@ -1,235 +1,196 @@
-import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import {
-  FaChalkboardTeacher,
-  FaUsers,
-  FaBook,
-  FaClipboardList,
-  FaChartLine,
-  FaCog,
-} from "react-icons/fa";
-import { useUI } from "../../../Hooks/useUI";
-import Button from "../../../Components/UI/Button";
-import StatCard from "../../../Components/UI/StatCard";
-import SectionCard from "../../../Components/UI/SectionCard";
-import ListItem from "../../../Components/UI/ListItem";
-import { userService, classService, assignmentService } from '../../../Services';
+import React from 'react';
+import { useAuth } from '../../../Hooks/useAuth';
+import { FaSchool, FaUsers, FaChalkboardTeacher, FaBookOpen, FaCalendarAlt, FaChartLine } from 'react-icons/fa';
 
 const SchoolDashboardPage = () => {
-  const { t } = useTranslation();
-  const { showError, isLoading, setLoading } = useUI();
-  const [stats, setStats] = useState({
-    totalTeachers: 0,
-    totalStudents: 0,
-    totalClasses: 0,
-    totalSubjects: 0,
-    pendingAssignments: 0,
-    recentActivities: [],
-  });
+  const { user } = useAuth();
 
-  const fetchSchoolStats = async () => {
-    setLoading(true);
-    try {
-      // Gọi API thực để lấy thống kê trường học
-      const [teachers, students, classes] = await Promise.all([
-        userService.getTeachers({ count: true }),
-        userService.getStudents({ count: true }), 
-        classService.getAllClasses({ count: true })
-      ]);
-
-      const assignments = await assignmentService.getAllAssignments({ status: 'pending', count: true });
-
-      // Lấy hoạt động gần đây
-      const activities = await userService.getRecentActivities({ limit: 5 });
-
-      setStats({
-        totalTeachers: teachers?.data?.total || 0,
-        totalStudents: students?.data?.total || 0,
-        totalClasses: classes?.data?.total || 0,
-        totalSubjects: 15, // Có thể thêm API cho subjects sau
-        pendingAssignments: assignments?.data?.total || 0,
-        recentActivities: activities?.data || []
-      });
-    } catch (error) {
-      console.error('Error fetching school stats:', error);
-      showError("Không thể tải thống kê trường học: " + error.message);
-      
-      // Fallback với mock data nếu API lỗi
-      setStats({
-        totalTeachers: 45,
-        totalStudents: 512,
-        totalClasses: 18,
-        totalSubjects: 15,
-        pendingAssignments: 23,
-        recentActivities: [
-          {
-            action: `Giáo viên Nguyễn Văn A tạo bài tập ${t("subject.math")} mới`,
-            time: "2 phút trước",
-            type: "assignment",
-          },
-          {
-            action: `Học sinh Trần Thị B nộp bài tập ${t("subject.literature")}`,
-            time: "5 phút trước",
-            type: "submission",
-          },
-          {
-            action: "Lớp 10A1 được tạo mới",
-            time: "1 giờ trước",
-            type: "class",
-          },
-          {
-            action: `Giáo viên Lê Văn C cập nhật điểm ${t("subject.english")}`,
-            time: "15 phút trước",
-            type: "grading",
-          },
-        ],
-      });
-    } finally {
-      setLoading(false);
-    }
+  // Mock data - replace with real API calls later
+  const dashboardStats = {
+    totalStudents: 850,
+    totalTeachers: 45,
+    totalClasses: 28,
+    activeAssignments: 15,
+    upcomingExams: 8,
+    recentActivities: [
+      { id: 1, type: 'assignment', message: 'Bài tập Toán học đã được tạo', time: '2 giờ trước' },
+      { id: 2, type: 'student', message: '5 học sinh mới đăng ký', time: '4 giờ trước' },
+      { id: 3, type: 'exam', message: 'Kiểm tra Văn học đã được lên lịch', time: '1 ngày trước' },
+    ]
   };
 
-  useEffect(() => {
-    fetchSchoolStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
-    <div className="space-y-6">
+    <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-5xl font-bold text-blue-600 text-shadow-2xs">
-            {t("schoolDashboard.title")}
-          </h1>
-          <p className="mt-1 text-gray-600 dark:text-gray-400">
-            {t("schoolDashboard.subtitle")}
-          </p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          School Dashboard
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Chào mừng {user?.full_name || 'Admin'} quay trở lại! Tổng quan về trường học của bạn.
+        </p>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <FaUsers className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Học sinh</h3>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {dashboardStats.totalStudents.toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Tổng số học sinh</p>
+            </div>
+          </div>
         </div>
-        <div className="flex space-x-3">
-          <Button onClick={fetchSchoolStats} variant="accent" disabled={isLoading}>
-            <FaChartLine className="inline mr-2" />
-            {t("schoolDashboard.refresh")}
-          </Button>
-          <Button variant="secondary">
-            <FaCog className="inline mr-2" />
-            {t("schoolDashboard.settings")}
-          </Button>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+              <FaChalkboardTeacher className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Giáo viên</h3>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {dashboardStats.totalTeachers}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Tổng số giáo viên</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+              <FaSchool className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Lớp học</h3>
+              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {dashboardStats.totalClasses}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Lớp đang hoạt động</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
+              <FaBookOpen className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Bài tập</h3>
+              <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                {dashboardStats.activeAssignments}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Đang hoạt động</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
+              <FaCalendarAlt className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Kiểm tra</h3>
+              <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                {dashboardStats.upcomingExams}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Sắp diễn ra</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+              <FaChartLine className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Hiệu suất</h3>
+              <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                92%
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Điểm trung bình</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Khu vực thống kê */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        <StatCard
-          title={t("schoolDashboard.totalTeachers")}
-          value={stats.totalTeachers}
-          icon={<FaChalkboardTeacher size={24} />}
-          variant="accent"
-          loading={isLoading}
-        />
-        <StatCard
-          title={t("schoolDashboard.totalStudents")}
-          value={stats.totalStudents}
-          icon={<FaUsers size={24} />}
-          variant="info"
-          loading={isLoading}
-        />
-        <StatCard
-          title={t("schoolDashboard.totalClasses")}
-          value={stats.totalClasses}
-          icon={<FaBook size={24} />}
-          variant="success"
-          loading={isLoading}
-        />
-        <StatCard
-          title={t("schoolDashboard.totalSubjects")}
-          value={stats.totalSubjects}
-          icon={<FaClipboardList size={24} />}
-          variant="pink"
-          loading={isLoading}
-        />
-        <StatCard
-          title={t("schoolDashboard.pendingAssignments")}
-          value={stats.pendingAssignments}
-          icon={<FaClipboardList size={24} />}
-          variant="orange"
-          loading={isLoading}
-        />
+      {/* Recent Activities and Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Activities */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Hoạt động gần đây
+          </h3>
+          <div className="space-y-4">
+            {dashboardStats.recentActivities.map((activity) => (
+              <div key={activity.id} className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-900 dark:text-white">
+                    {activity.message}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {activity.time}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4">
+            <button className="text-blue-600 dark:text-blue-400 text-sm hover:underline">
+              Xem tất cả hoạt động →
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Thao tác nhanh
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <FaUsers className="h-6 w-6 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                Quản lý học sinh
+              </span>
+            </button>
+            
+            <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <FaChalkboardTeacher className="h-6 w-6 text-green-600 dark:text-green-400 mx-auto mb-2" />
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                Quản lý giáo viên
+              </span>
+            </button>
+            
+            <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <FaSchool className="h-6 w-6 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                Quản lý lớp học
+              </span>
+            </button>
+            
+            <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <FaBookOpen className="h-6 w-6 text-orange-600 dark:text-orange-400 mx-auto mb-2" />
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                Tạo bài tập
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
-
-      {/* Quick Actions */}
-      <SectionCard
-        title={t("schoolDashboard.quickActions")}
-        subtitle={t("schoolDashboard.quickActionsSubtitle")}
-        icon={<FaCog size={20} className="text-gray-600" />}
-      >
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <button className="p-4 text-left transition-colors rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30">
-            <div className="flex items-center space-x-3">
-              <FaUsers className="text-xl text-blue-600" />
-              <span className="font-medium text-blue-700 dark:text-blue-300">
-                {t("schoolDashboard.addStudent")}
-              </span>
-            </div>
-          </button>
-          <button className="p-4 text-left transition-colors rounded-lg bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30">
-            <div className="flex items-center space-x-3">
-              <FaChalkboardTeacher className="text-xl text-green-600" />
-              <span className="font-medium text-green-700 dark:text-green-300">
-                {t("schoolDashboard.addTeacher")}
-              </span>
-            </div>
-          </button>
-          <button className="p-4 text-left transition-colors rounded-lg bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30">
-            <div className="flex items-center space-x-3">
-              <FaBook className="text-xl text-purple-600" />
-              <span className="font-medium text-purple-700 dark:text-purple-300">
-                {t("schoolDashboard.createClass")}
-              </span>
-            </div>
-          </button>
-          <button className="p-4 text-left transition-colors rounded-lg bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/30">
-            <div className="flex items-center space-x-3">
-              <FaClipboardList className="text-xl text-orange-600" />
-              <span className="font-medium text-orange-700 dark:text-orange-300">
-                {t("schoolDashboard.viewReports")}
-              </span>
-            </div>
-          </button>
-        </div>
-      </SectionCard>
-
-      {/* Recent Activities */}
-      <SectionCard
-        title={t("schoolDashboard.recentActivities")}
-        subtitle={t("schoolDashboard.recentActivitiesSubtitle")}
-        icon={<FaClipboardList size={20} className="text-blue-600" />}
-      >
-        <div className="space-y-3">
-          {stats.recentActivities.map((activity, index) => (
-            <ListItem
-              key={index}
-              title={activity.action}
-              status={{
-                type: 'text',
-                variant: 'info',
-                label: activity.time
-              }}
-              icon={
-                activity.type === 'assignment' ? (
-                  <FaClipboardList className="text-blue-600" />
-                ) : activity.type === 'submission' ? (
-                  <FaBook className="text-green-600" />
-                ) : activity.type === 'grading' ? (
-                  <FaChartLine className="text-orange-600" />
-                ) : (
-                  <FaUsers className="text-purple-600" />
-                )
-              }
-            />
-          ))}
-        </div>
-      </SectionCard>
     </div>
   );
 };

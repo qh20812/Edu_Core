@@ -1,6 +1,7 @@
 const Tenant = require('../Models/tenant.model');
 const User = require('../Models/user.model');
 const bcrypt = require('bcryptjs');
+const TransactionManager = require('../Utils/transaction');
 
 class TenantService {
   // Create new tenant with plan information
@@ -32,8 +33,8 @@ class TenantService {
       const selectedPlan = planData.plan || 'small';
       const defaults = planDefaults[selectedPlan];
 
-      // Create tenant with complete information
-      const tenant = new Tenant({
+      // Prepare tenant data
+      const completeTenantData = {
         name: tenantData.name,
         school_code: tenantData.school_code || null,
         school_type: tenantData.school_type || 'high_school',
@@ -53,28 +54,15 @@ class TenantService {
         max_students: defaults.max_students,
         subscription_status: 'trial', // Start with trial
         is_active: true,
-      });
+      };
 
-      const savedTenant = await tenant.save();
+      // Use transaction to create tenant and admin user atomically
+      const result = await TransactionManager.createTenantWithAdmin(
+        completeTenantData,
+        adminData
+      );
 
-      // Create admin user for the tenant
-      if (adminData) {
-        const hashedPassword = await bcrypt.hash(adminData.password, 12);
-        
-        const adminUser = new User({
-          tenant_id: savedTenant._id,
-          email: adminData.email,
-          password_hash: hashedPassword, // Fix: should be password_hash not password
-          full_name: adminData.full_name,
-          phone: adminData.phone,
-          role: 'school_admin',
-          status: 'active',
-        });
-
-        await adminUser.save();
-      }
-
-      return savedTenant;
+      return result.tenant;
     } catch (error) {
       console.error('Error creating tenant:', error);
       throw error;

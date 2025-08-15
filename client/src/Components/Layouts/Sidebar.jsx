@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useUI } from '../../Hooks/useUI';
 import { useAuth } from '../../Hooks/useAuth';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,7 @@ const Sidebar = () => {
   const { user, hasRole, logout } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
     { path: '/dashboard/', icon: <FaHome />, label: 'navigation.dashboard', roles: ['student', 'teacher', 'parent', 'school_admin', 'sys_admin'] },
@@ -69,15 +70,38 @@ const Sidebar = () => {
     { path: '/dashboard/admin/school/settings', icon: <FaCog />, label: 'navigation.schoolSettings', roles: ['school_admin'] },
   ];
 
-  const navLinkClass = ({ isActive }) =>
-    cn(
+  // Function để check active state chính xác - tránh multiple active
+  const getNavLinkClass = (itemPath) => () => {
+    const currentPath = location.pathname;
+    let isItemActive = false;
+    
+    // Exact match có priority cao nhất
+    if (currentPath === itemPath) {
+      isItemActive = true;
+    }
+    // Dashboard root chỉ active khi exactly ở dashboard
+    else if (itemPath === '/dashboard/') {
+      isItemActive = currentPath === '/dashboard' || currentPath === '/dashboard/';
+    }
+    // Các nested routes - chỉ active khi là parent path chính xác
+    else if (currentPath.startsWith(itemPath + '/')) {
+      // Đảm bảo không có path nào dài hơn cũng match
+      const longerPaths = navItems
+        .filter(item => item.path.startsWith(itemPath + '/') && item.path.length > itemPath.length)
+        .map(item => item.path);
+      
+      // Chỉ active nếu không có path con nào match chính xác hơn
+      isItemActive = !longerPaths.some(path => currentPath.startsWith(path));
+    }
+
+    return cn(
       'group flex items-center p-3 rounded-lg transition-all duration-200 relative overflow-hidden',
       'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400',
-      isActive 
+      isItemActive 
         ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-400' 
         : 'hover:bg-gray-50 dark:hover:bg-gray-800'
     );
-
+  };
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -141,7 +165,7 @@ const Sidebar = () => {
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) =>
           hasRole(item.roles) && (
-            <NavLink to={item.path} key={item.path} className={navLinkClass}>
+            <NavLink to={item.path} key={item.path} className={getNavLinkClass(item.path)}>
               <div className="flex items-center w-full">
                 <span className="flex-shrink-0 text-lg transition-transform duration-200 group-hover:scale-110">
                   {item.icon}
@@ -155,7 +179,7 @@ const Sidebar = () => {
               {!isSidebarOpen && (
                 <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 bg-gray-900 border border-gray-700 rounded-md opacity-0 left-full group-hover:opacity-100 group-hover:visible whitespace-nowrap dark:bg-gray-700 dark:border-gray-600">
                   {t(item.label)}
-                  <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-1/2 -translate-y-1/2 dark:bg-gray-700"></div>
+                  <div className="absolute w-2 h-2 transform rotate-45 -translate-y-1/2 bg-gray-900 -left-1 top-1/2 dark:bg-gray-700"></div>
                 </div>
               )}
             </NavLink>
@@ -168,7 +192,7 @@ const Sidebar = () => {
         'px-3 py-4 space-y-1 border-t',
         'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
       )}>
-        <NavLink to="/settings" className={navLinkClass}>
+        <NavLink to="/settings" className={getNavLinkClass('/settings')}>
           <div className="flex items-center w-full">
             <FaCog className="flex-shrink-0 text-lg transition-transform duration-200 group-hover:rotate-90" />
             {isSidebarOpen && <span className="ml-3 font-medium">{t('navigation.settings')}</span>}
@@ -176,7 +200,7 @@ const Sidebar = () => {
           {!isSidebarOpen && (
             <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 bg-gray-900 border border-gray-700 rounded-md opacity-0 left-full group-hover:opacity-100 group-hover:visible whitespace-nowrap dark:bg-gray-700 dark:border-gray-600">
               {t('navigation.settings')}
-              <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-1/2 -translate-y-1/2 dark:bg-gray-700"></div>
+              <div className="absolute w-2 h-2 transform rotate-45 -translate-y-1/2 bg-gray-900 -left-1 top-1/2 dark:bg-gray-700"></div>
             </div>
           )}
         </NavLink>
@@ -184,8 +208,9 @@ const Sidebar = () => {
         <button 
           onClick={handleLogout} 
           className={cn(
-            navLinkClass({isActive: false}), 
-            'w-full text-left hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400'
+            'group flex items-center p-3 rounded-lg transition-all duration-200 relative overflow-hidden w-full text-left',
+            'text-gray-600 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400',
+            'hover:bg-red-50 dark:hover:bg-red-900/30'
           )}
         >
           <div className="flex items-center w-full">
@@ -195,7 +220,7 @@ const Sidebar = () => {
           {!isSidebarOpen && (
             <div className="absolute z-50 invisible px-2 py-1 ml-2 text-sm text-white transition-all duration-200 bg-gray-900 border border-gray-700 rounded-md opacity-0 left-full group-hover:opacity-100 group-hover:visible whitespace-nowrap dark:bg-gray-700 dark:border-gray-600">
               {t('auth.logout')}
-              <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-1/2 -translate-y-1/2 dark:bg-gray-700"></div>
+              <div className="absolute w-2 h-2 transform rotate-45 -translate-y-1/2 bg-gray-900 -left-1 top-1/2 dark:bg-gray-700"></div>
             </div>
           )}
         </button>
