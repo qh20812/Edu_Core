@@ -74,6 +74,12 @@ export const queryKeys = {
 
 // Utility functions để invalidate cache
 export const invalidateQueries = {
+  // Invalidate all auth-related queries
+  auth: () => queryClient.invalidateQueries({ queryKey: ['auth'] }),
+  
+  // Invalidate specific user profile
+  authProfile: (userId) => queryClient.invalidateQueries({ queryKey: queryKeys.auth.profile(userId) }),
+  
   // Invalidate all tenant-related queries
   tenants: () => queryClient.invalidateQueries({ queryKey: queryKeys.tenants.all }),
   

@@ -1,4 +1,5 @@
 const User = require("../Models/user.model");
+const cacheService = require("./cache.service");
 
 class UserService {
   /**
@@ -8,7 +9,16 @@ class UserService {
    */
   async findUserByEmail(email) {
     try {
-      return await User.findOne({ email: email.toLowerCase().trim() });
+      const normalizedEmail = email.toLowerCase().trim();
+      const cacheKey = `user:email:${normalizedEmail}`;
+      
+      return await cacheService.wrap(
+        cacheKey,
+        async () => {
+          return await User.findOne({ email: normalizedEmail });
+        },
+        cacheService.TTL.SHORT // 5 minutes for auth data
+      );
     } catch (error) {
       throw new Error(`Error finding user by email: ${error.message}`);
     }
@@ -25,7 +35,13 @@ class UserService {
         ...userData,
         email: userData.email.toLowerCase().trim()
       });
-      return await user.save();
+      
+      const savedUser = await user.save();
+      
+      // Invalidate related cache
+      await cacheService.invalidate.user(savedUser._id, savedUser.tenant);
+      
+      return savedUser;
     } catch (error) {
       if (error.code === 11000) {
         throw new Error("Email already exists");
@@ -41,7 +57,15 @@ class UserService {
    */
   async findUserById(userId) {
     try {
-      return await User.findById(userId).select("-password_hash");
+      const cacheKey = cacheService.generateKey.user(userId);
+      
+      return await cacheService.wrap(
+        cacheKey,
+        async () => {
+          return await User.findById(userId).select("-password_hash");
+        },
+        cacheService.TTL.MEDIUM // 30 minutes for user data
+      );
     } catch (error) {
       throw new Error(`Error finding user by ID: ${error.message}`);
     }
@@ -54,13 +78,67 @@ class UserService {
    */
   async updateLastLogin(userId) {
     try {
-      return await User.findByIdAndUpdate(
+      const updatedUser = await User.findByIdAndUpdate(
         userId,
         { last_login: new Date() },
         { new: true }
       );
+      
+      // Invalidate user cache
+      await cacheService.del(cacheService.generateKey.user(userId));
+      
+      return updatedUser;
     } catch (error) {
       throw new Error(`Error updating last login: ${error.message}`);
+    }
+  }
+
+  /**
+   * Lấy danh sách users với cache
+   * @param {string} tenantId 
+   * @param {Object} filters 
+   * @returns {Promise<Array>}
+   */
+  async getUsers(tenantId, filters = {}) {
+    try {
+      const cacheKey = cacheService.generateKey.users(tenantId, filters);
+      
+      return await cacheService.wrap(
+        cacheKey,
+        async () => {
+          const query = { tenant: tenantId, ...filters };
+          return await User.find(query)
+            .select("-password_hash")
+            .populate('tenant', 'name')
+            .sort({ created_at: -1 });
+        },
+        cacheService.TTL.MEDIUM
+      );
+    } catch (error) {
+      throw new Error(`Error getting users: ${error.message}`);
+    }
+  }
+
+  /**
+   * Cập nhật user
+   * @param {string} userId 
+   * @param {Object} updateData 
+   * @returns {Promise<Object>}
+   */
+  async updateUser(userId, updateData) {
+    try {
+      const user = await User.findByIdAndUpdate(
+        userId,
+        updateData,
+        { new: true, runValidators: true }
+      ).select("-password_hash");
+      
+      // Invalidate cache
+      await cacheService.invalidate.user(userId, user.tenant);
+      
+      return user;
+    } catch (error) {
+      throw new Error(`Error updating user: ${error.message}`);
     }
   }
 }

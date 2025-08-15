@@ -2,11 +2,16 @@
 // IMPORT: Thư viện và các module chính
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
 const app = express();
 require('dotenv').config(); // Đọc biến môi trường từ file .env
 
 // FUNCTION: Kết nối MongoDB
 const connectDB = require('./Configs/db');
+
+// SERVICES: Import services
+const socketService = require('./Services/socket.service');
+const cacheService = require('./Services/cache.service');
 
 // ROUTES: Import các route chính
 const authRoutes = require('./Routes/auth.routes'); // Đăng ký, đăng nhập, xác thực
@@ -109,8 +114,36 @@ app.use('*', (req, res) => {
 });
 
 
-// FUNCTION: Khởi động server
-app.listen(PORT, () => {
-    console.log(`Server đang chạy tại http://localhost:${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+// FUNCTION: Khởi động server với Socket.IO
+const server = http.createServer(app);
+
+// Initialize Socket.IO
+socketService.initialize(server);
+console.log('✅ Socket.IO server initialized');
+
+server.listen(PORT, () => {
+    console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+    console.log(`📡 WebSocket server đang chạy`);
+    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+    
+    // Check Redis status
+    try {
+        const isConnected = cacheService.redis && cacheService.redis.status === 'ready';
+        const redisStatus = isConnected ? '✅ Connected' : '❌ Disconnected';
+        console.log(`💾 Redis Cache: ${redisStatus}`);
+    } catch (error) {
+        console.log(`💾 Redis Cache: ❌ Disconnected`);
+    }
+    
+    // Log server stats every 5 minutes
+    setInterval(() => {
+        try {
+            const stats = socketService.getStats();
+            console.log(`📊 Server Stats: ${stats.connectedUsers} users online, ${stats.activeRooms} active rooms`);
+        } catch (error) {
+            console.log('📊 Server Stats: Not available');
+        }
+    }, 5 * 60 * 1000);
 });
+
+module.exports = app;

@@ -9,6 +9,7 @@ export { examService } from './exam.service';
 export { questionService } from './question.service';
 export { tenantService } from './tenant.service';
 export { notificationService } from './notification.service';
+export { systemService } from './system.service';
 
 // Import để sử dụng trong object services
 import { authService } from './auth.service';
@@ -20,6 +21,7 @@ import { examService } from './exam.service';
 import { questionService } from './question.service';
 import { tenantService } from './tenant.service';
 import { notificationService } from './notification.service';
+import { systemService } from './system.service';
 
 // Cũng có thể tạo một object chứa tất cả services
 export const services = {
@@ -32,6 +34,7 @@ export const services = {
   question: questionService,
   tenant: tenantService,
   notification: notificationService,
+  system: systemService,
 };
 
 // Helper function để handle lỗi chung

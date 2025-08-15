@@ -2,6 +2,7 @@ const Tenant = require('../Models/tenant.model');
 const User = require('../Models/user.model');
 const bcrypt = require('bcryptjs');
 const TransactionManager = require('../Utils/transaction');
+const cacheService = require('./cache.service');
 
 class TenantService {
   // Create new tenant with plan information
@@ -62,6 +63,9 @@ class TenantService {
         adminData
       );
 
+      // Invalidate system cache after creating new tenant
+      await cacheService.invalidate.systemData();
+
       return result.tenant;
     } catch (error) {
       console.error('Error creating tenant:', error);
@@ -69,43 +73,61 @@ class TenantService {
     }
   }
 
-  // Get tenant by ID
+  // Get tenant by ID with cache
   async getTenantById(tenantId) {
     try {
-      return await Tenant.findById(tenantId).lean();
+      const cacheKey = cacheService.generateKey.tenant(tenantId);
+      
+      return await cacheService.wrap(
+        cacheKey,
+        async () => {
+          return await Tenant.findById(tenantId).lean();
+        },
+        cacheService.TTL.LONG // 2 hours for tenant data
+      );
     } catch (error) {
       console.error('Error getting tenant:', error);
       throw error;
     }
   }
 
-  // Update tenant subscription
+  // Update tenant subscription with cache invalidation
   async updateSubscription(tenantId, subscriptionData) {
     try {
-      return await Tenant.findByIdAndUpdate(
+      const updatedTenant = await Tenant.findByIdAndUpdate(
         tenantId,
         subscriptionData,
         { new: true }
       );
+
+      // Invalidate tenant cache
+      await cacheService.invalidate.tenant(tenantId);
+
+      return updatedTenant;
     } catch (error) {
       console.error('Error updating tenant subscription:', error);
       throw error;
     }
   }
 
-  // Get tenant statistics
+  // Get tenant statistics with cache
   async getTenantStats(tenantId) {
     try {
-      const tenant = await Tenant.findById(tenantId);
-      if (!tenant) {
-        throw new Error('Tenant not found');
-      }
+      const cacheKey = cacheService.generateKey.tenantAnalytics(tenantId);
 
-      // Count users by role
-      const userStats = await User.aggregate([
-        { $match: { tenant_id: tenant._id } },
-        { $group: { _id: '$role', count: { $sum: 1 } } }
-      ]);
+      return await cacheService.wrap(
+        cacheKey,
+        async () => {
+          const tenant = await Tenant.findById(tenantId);
+          if (!tenant) {
+            throw new Error('Tenant not found');
+          }
+
+          // Count users by role
+          const userStats = await User.aggregate([
+            { $match: { tenant_id: tenant._id } },
+            { $group: { _id: '$role', count: { $sum: 1 } } }
+          ]);
 
       const stats = {
         totalStudents: 0,
@@ -150,34 +172,51 @@ class TenantService {
           usagePercentage: Math.round((stats.totalStudents / tenant.max_students) * 100),
         }
       };
+        },
+        cacheService.TTL.SHORT // 5 minutes for analytics
+      );
     } catch (error) {
       console.error('Error getting tenant stats:', error);
       throw error;
     }
   }
 
-  // Check if tenant can add more students
+  // Check if tenant can add more students with cache
   async canAddStudents(tenantId, additionalCount = 1) {
     try {
-      const tenant = await Tenant.findById(tenantId);
-      if (!tenant) {
-        throw new Error('Tenant not found');
-      }
+      const cacheKey = `tenant:${tenantId}:student_limit`;
+      
+      const result = await cacheService.wrap(
+        cacheKey,
+        async () => {
+          const tenant = await Tenant.findById(tenantId);
+          if (!tenant) {
+            throw new Error('Tenant not found');
+          }
 
-      const currentStudentCount = await User.countDocuments({
-        tenant_id: tenantId,
-        role: 'student'
-      });
+          const currentStudentCount = await User.countDocuments({
+            tenant_id: tenantId,
+            role: 'student'
+          });
 
-      const newTotal = currentStudentCount + additionalCount;
-      const canAdd = newTotal <= tenant.max_students;
+          return {
+            currentCount: currentStudentCount,
+            maxAllowed: tenant.max_students,
+            remaining: tenant.max_students - currentStudentCount,
+          };
+        },
+        cacheService.TTL.SHORT // 5 minutes for student count
+      );
+
+      const newTotal = result.currentCount + additionalCount;
+      const canAdd = newTotal <= result.maxAllowed;
 
       return {
         canAdd,
-        currentCount: currentStudentCount,
-        maxAllowed: tenant.max_students,
+        currentCount: result.currentCount,
+        maxAllowed: result.maxAllowed,
         newTotal,
-        remaining: tenant.max_students - currentStudentCount,
+        remaining: result.remaining,
       };
     } catch (error) {
       console.error('Error checking student limit:', error);
@@ -185,14 +224,20 @@ class TenantService {
     }
   }
 
-  // Get all tenants (for sys_admin)
+  // Get all tenants with cache (for sys_admin)
   async getAllTenants(page = 1, limit = 10, search = '') {
     try {
-      const skip = (page - 1) * limit;
-      const searchQuery = search ? {
-        $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { contact_email: { $regex: search, $options: 'i' } },
+      const filters = { page, limit, search };
+      const cacheKey = cacheService.generateKey.tenants(filters);
+
+      return await cacheService.wrap(
+        cacheKey,
+        async () => {
+          const skip = (page - 1) * limit;
+          const searchQuery = search ? {
+            $or: [
+              { name: { $regex: search, $options: 'i' } },
+              { contact_email: { $regex: search, $options: 'i' } },
           { school_code: { $regex: search, $options: 'i' } }
         ]
       } : {};
@@ -214,13 +259,16 @@ class TenantService {
           pages: Math.ceil(total / limit),
         }
       };
+        },
+        cacheService.TTL.MEDIUM // 30 minutes for tenant list
+      );
     } catch (error) {
       console.error('Error getting all tenants:', error);
       throw error;
     }
   }
 
-  // Approve tenant
+  // Approve tenant with cache invalidation
   async approveTenant(tenantId) {
     try {
       const tenant = await Tenant.findByIdAndUpdate(
@@ -236,6 +284,10 @@ class TenantService {
         throw new Error('Tenant not found');
       }
 
+      // Invalidate caches
+      await cacheService.invalidate.tenant(tenantId);
+      await cacheService.invalidate.systemData();
+
       return tenant;
     } catch (error) {
       console.error('Error approving tenant:', error);
@@ -243,7 +295,7 @@ class TenantService {
     }
   }
 
-  // Reject tenant
+  // Reject tenant with cache invalidation
   async rejectTenant(tenantId, reason) {
     try {
       const tenant = await Tenant.findByIdAndUpdate(
@@ -259,6 +311,10 @@ class TenantService {
       if (!tenant) {
         throw new Error('Tenant not found');
       }
+
+      // Invalidate caches
+      await cacheService.invalidate.tenant(tenantId);
+      await cacheService.invalidate.systemData();
 
       return tenant;
     } catch (error) {

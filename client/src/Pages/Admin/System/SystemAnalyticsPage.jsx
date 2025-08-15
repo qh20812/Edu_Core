@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaUsers,
@@ -12,34 +12,18 @@ import {
   FaTimesCircle
 } from "react-icons/fa";
 import { useUI } from "../../../Hooks/useUI";
+import { useSystemOverview } from "../../../Hooks/useSystemData";
 import Button from "../../../Components/UI/Button";
 import SectionCard from "../../../Components/UI/SectionCard";
 
 const SystemAnalyticsPage = () => {
   const { t } = useTranslation();
-  const { showError } = useUI();
+  const { showError, showSuccess } = useUI();
   
-  const [analytics, setAnalytics] = useState({
-    systemStats: {
-      totalUsers: 0,
-      totalTenants: 0,
-      totalClasses: 0,
-      totalAssignments: 0
-    },
-    serverHealth: {
-      status: 'unknown',
-      uptime: 0
-    },
-    databaseStats: {
-      totalCollections: 0,
-      totalDocuments: 0,
-      connectionCount: 0
-    },
-    recentActivity: []
-  });
+  // Use React Query hooks instead of useState and useEffect
+  const { analytics, health, databaseStats, isLoading, isError, error, refetchAll } = useSystemOverview();
   
-  const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [refreshing, setRefreshing] = useState(false);
 
   // Safe accessor functions
   const safeNum = (value, defaultValue = 0) => {
@@ -73,38 +57,60 @@ const SystemAnalyticsPage = () => {
     }
   };
 
-  // Load system analytics
-  const loadAnalytics = useCallback(async () => {
+  // Handle manual refresh
+  const handleRefresh = async () => {
+    setRefreshing(true);
     try {
-      setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/system/analytics`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAnalytics(prevState => ({
-          ...prevState,
-          ...data.data
-        }));
-        setLastUpdated(new Date());
-      } else {
-        console.log('System analytics API not available, using default data');
-      }
-    } catch (error) {
-      console.error('Error loading analytics:', error);
-      showError('Không thể tải dữ liệu analytics: ' + error.message);
+      await refetchAll();
+      showSuccess('Dữ liệu đã được cập nhật');
+    } catch (err) {
+      showError('Lỗi khi tải dữ liệu: ' + err.message);
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
-  }, [showError]);
+  };
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [loadAnalytics]);
+  // Handle error state
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <FaTimesCircle className="w-12 h-12 mx-auto text-red-600 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Lỗi tải dữ liệu analytics
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            {error?.message || 'Có lỗi xảy ra khi tải dữ liệu hệ thống'}
+          </p>
+          <Button onClick={handleRefresh} variant="primary">
+            <FaSync className="inline mr-2" />
+            Thử lại
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Extract data safely from React Query responses
+  const systemStats = analytics?.data?.data?.systemStats || {
+    totalUsers: 0,
+    totalTenants: 0,
+    totalClasses: 0,
+    totalAssignments: 0
+  };
+
+  const serverHealth = health?.data?.data || {
+    status: 'unknown',
+    uptime: 0
+  };
+
+  const dbStats = databaseStats?.data?.data || {
+    totalCollections: 0,
+    totalDocuments: 0,
+    connectionCount: 0
+  };
+
+  const recentActivity = analytics?.data?.data?.recentActivity || [];
 
   return (
     <div className="space-y-6">
@@ -119,15 +125,15 @@ const SystemAnalyticsPage = () => {
           </p>
         </div>
         <div className="flex space-x-3">
-          <Button onClick={loadAnalytics} variant="accent" disabled={loading}>
-            <FaSync className={`inline mr-2 ${loading ? 'animate-spin' : ''}`} />
+          <Button onClick={handleRefresh} variant="accent" disabled={isLoading || refreshing}>
+            <FaSync className={`inline mr-2 ${isLoading || refreshing ? 'animate-spin' : ''}`} />
             Làm mới
           </Button>
         </div>
       </div>
 
       {/* Loading State */}
-      {loading ? (
+      {isLoading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Đang tải dữ liệu analytics...</p>
@@ -136,7 +142,7 @@ const SystemAnalyticsPage = () => {
         <>
           {/* Last Updated */}
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            Cập nhật lần cuối: {lastUpdated.toLocaleString('vi-VN')}
+            Dữ liệu được cập nhật tự động
           </div>
 
           {/* System Stats */}
@@ -149,7 +155,7 @@ const SystemAnalyticsPage = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tổng người dùng</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {safeNum(analytics?.systemStats?.totalUsers).toLocaleString()}
+                    {safeNum(systemStats?.totalUsers).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -163,7 +169,7 @@ const SystemAnalyticsPage = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tổng trường học</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {safeNum(analytics?.systemStats?.totalTenants).toLocaleString()}
+                    {safeNum(systemStats?.totalTenants).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -177,7 +183,7 @@ const SystemAnalyticsPage = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tổng lớp học</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {safeNum(analytics?.systemStats?.totalClasses).toLocaleString()}
+                    {safeNum(systemStats?.totalClasses).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -191,7 +197,7 @@ const SystemAnalyticsPage = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tổng bài tập</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {safeNum(analytics?.systemStats?.totalAssignments).toLocaleString()}
+                    {safeNum(systemStats?.totalAssignments).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -208,13 +214,13 @@ const SystemAnalyticsPage = () => {
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-900 dark:text-gray-100">Server Status</h4>
                 <div className="flex items-center space-x-2">
-                  {getStatusIcon(analytics?.serverHealth?.status)}
+                  {getStatusIcon(serverHealth?.status)}
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Status: {analytics?.serverHealth?.status || 'Unknown'}
+                    Status: {serverHealth?.status || 'Unknown'}
                   </span>
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Uptime: {formatUptime(safeNum(analytics?.serverHealth?.uptime))}
+                  Uptime: {formatUptime(safeNum(serverHealth?.uptime))}
                 </div>
               </div>
 
@@ -223,15 +229,15 @@ const SystemAnalyticsPage = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Collections:</span>
-                    <span className="text-gray-900 dark:text-white">{safeNum(analytics?.databaseStats?.totalCollections)}</span>
+                    <span className="text-gray-900 dark:text-white">{safeNum(dbStats?.totalCollections)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Documents:</span>
-                    <span className="text-gray-900 dark:text-white">{safeNum(analytics?.databaseStats?.totalDocuments).toLocaleString()}</span>
+                    <span className="text-gray-900 dark:text-white">{safeNum(dbStats?.totalDocuments).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Connections:</span>
-                    <span className="text-gray-900 dark:text-white">{safeNum(analytics?.databaseStats?.connectionCount)}</span>
+                    <span className="text-gray-900 dark:text-white">{safeNum(dbStats?.connectionCount)}</span>
                   </div>
                 </div>
               </div>
@@ -245,8 +251,8 @@ const SystemAnalyticsPage = () => {
             icon={<FaHistory size={20} className="text-blue-600" />}
           >
             <div className="space-y-3">
-              {(analytics?.recentActivity || []).length > 0 ? (
-                analytics.recentActivity.slice(0, 5).map((activity, index) => (
+              {recentActivity.length > 0 ? (
+                recentActivity.slice(0, 5).map((activity, index) => (
                   <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="flex-shrink-0">
                       <FaHistory className="h-4 w-4 text-gray-400 mt-1" />

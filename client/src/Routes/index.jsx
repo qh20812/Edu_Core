@@ -1,44 +1,87 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../Hooks/useAuth';
 
 // Layouts
 import DashboardLayout from '../Components/Layouts/DashboardLayout';
 
+// Loading Component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="flex flex-col items-center space-y-4">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <p className="text-gray-600">Loading...</p>
+    </div>
+  </div>
+);
+
+// Lazy load components for code splitting
 // Auth Pages
-import LoginPage from '../Pages/Auth/LoginPage';
-import RegisterPage from '../Pages/Auth/RegisterPage';
-import TenantRegisterPage from '../Pages/Auth/TenantRegisterPageNew';
-import TenantRegistrationSuccessPage from '../Pages/Auth/TenantRegistrationSuccessPage';
+const LoginPage = React.lazy(() => import('../Pages/Auth/LoginPage'));
+const RegisterPage = React.lazy(() => import('../Pages/Auth/RegisterPage'));
+const TenantRegisterPage = React.lazy(() => import('../Pages/Auth/TenantRegisterPageNew'));
+const TenantRegistrationSuccessPage = React.lazy(() => import('../Pages/Auth/TenantRegistrationSuccessPage'));
 
 // Public Pages
-import LandingPage from '../Pages/Landing/LandingPage';
-import AboutPage from '../Pages/Landing/AboutPage';
-import BlogPage from '../Pages/Landing/BlogPage';
-import ContactPage from '../Pages/Landing/ContactPage';
-import PricingPage from '../Pages/Landing/PricingPage';
+const LandingPage = React.lazy(() => import('../Pages/Landing/LandingPage'));
+const AboutPage = React.lazy(() => import('../Pages/Landing/AboutPage'));
+const BlogPage = React.lazy(() => import('../Pages/Landing/BlogPage'));
+const ContactPage = React.lazy(() => import('../Pages/Landing/ContactPage'));
+const PricingPage = React.lazy(() => import('../Pages/Landing/PricingPage'));
 
 // Payment Pages
-import PaymentSuccessPage from '../Pages/Payment/PaymentSuccessPage';
-import PaymentCancelPage from '../Pages/Payment/PaymentCancelPage';
+const PaymentSuccessPage = React.lazy(() => import('../Pages/Payment/PaymentSuccessPage'));
+const PaymentCancelPage = React.lazy(() => import('../Pages/Payment/PaymentCancelPage'));
 
 // Dashboard Pages
-import DashboardPage from '../Pages/DashboardPage';
-import TestPage from '../Pages/TestPage';
+const DashboardPage = React.lazy(() => import('../Pages/DashboardPage'));
+const TestPage = React.lazy(() => import('../Pages/TestPage'));
 
 // Feature Pages
-import ClassesPage from '../Pages/ClassesPage';
-import AssignmentsPage from '../Pages/AssignmentsPage';
-import ExamsPage from '../Pages/ExamsPage';
+const ClassesPage = React.lazy(() => import('../Pages/ClassesPage'));
+const AssignmentsPage = React.lazy(() => import('../Pages/AssignmentsPage'));
+const ExamsPage = React.lazy(() => import('../Pages/ExamsPage'));
 
-// Detail Pages (to be implemented)
-// import ClassDetailPage from '../Pages/ClassDetailPage';
-// import AssignmentDetailPage from '../Pages/AssignmentDetailPage';
-// import ExamDetailPage from '../Pages/ExamDetailPage';
+// Admin Pages
+const TenantManagementPage = React.lazy(() => import('../Pages/Admin/System/TenantManagementPage'));
+const SchoolDashboardPage = React.lazy(() => import('../Pages/Admin/School/SchoolDashboardPage'));
 
-// User Pages (to be implemented)
-// import UsersPage from '../Pages/UsersPage';
-// import ProfilePage from '../Pages/ProfilePage';
+// Error Boundary for lazy loading
+class LazyLoadErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Lazy load error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
+            <p className="text-gray-600 mb-4">Failed to load the page component</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 // Component bảo vệ các route yêu cầu đăng nhập
 const ProtectedRoute = ({ children }) => {
@@ -104,37 +147,39 @@ const AppRouter = () => {
 
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public Routes - Không cần auth */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        
-        {/* Payment Routes */}
-        <Route path="/payment/success" element={<PaymentSuccessPage />} />
-        <Route path="/payment/cancel" element={<PaymentCancelPage />} />
-        
-        {/* Tenant Registration Routes */}
-        <Route 
-          path="/tenant-register" 
-          element={<TenantRegisterPage />} 
-        />
-        <Route 
-          path="/tenant-registration-success" 
-          element={<TenantRegistrationSuccessPage />} 
-        />
-        
-        {/* Auth Routes - Redirect nếu đã đăng nhập */}
-        <Route 
-          path="/login" 
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          } 
-        />
+      <LazyLoadErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public Routes - Không cần auth */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            
+            {/* Payment Routes */}
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
+            <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+            
+            {/* Tenant Registration Routes */}
+            <Route 
+              path="/tenant-register" 
+              element={<TenantRegisterPage />} 
+            />
+            <Route 
+              path="/tenant-registration-success" 
+              element={<TenantRegistrationSuccessPage />} 
+            />
+            
+            {/* Auth Routes - Redirect nếu đã đăng nhập */}
+            <Route 
+              path="/login" 
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              } 
+            />
         <Route 
           path="/register" 
           element={
@@ -213,7 +258,9 @@ const AppRouter = () => {
             </div>
           } 
         />
-      </Routes>
+          </Routes>
+        </Suspense>
+      </LazyLoadErrorBoundary>
     </BrowserRouter>
   );
 };
