@@ -148,10 +148,8 @@ const Header = () => {
           {isDarkMode ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}
         </button>
 
-        {/* Upgrade Badge - Hide for sys_admin */}
-        {user?.role !== 'sys_admin' && (
-          <UpgradeBadge subscription={user?.tenant?.subscription} />
-        )}
+        {/* Upgrade Badge */}
+        <UpgradeBadge subscription={user?.tenant?.subscription} />
 
         {/* Notifications */}
         <NotificationDropdown />

@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const TenantController = require('../Controllers/tenant.controller');
 const { authenticateToken } = require('../Middlewares/auth.middleware');
+const { tenantValidation } = require('../Middlewares/validation.middleware');
 
 // Register new tenant (public route)
-router.post('/register', TenantController.registerTenant);
+router.post('/register', tenantValidation.register, TenantController.registerTenant);
 
 // Protected routes
 router.use(authenticateToken);

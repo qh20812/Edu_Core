@@ -10,40 +10,6 @@ class AuthController {
     try {
       const { email, password, full_name, role, tenant_id, phone } = req.body;
 
-      // NOTE: Validation
-      if (!email || !password || !full_name || !role || !tenant_id) {
-        return res.status(400).json({
-          success: false,
-          message: "Thiếu email, mật khẩu, họ tên, vai trò hoặc tenant_id"
-        });
-      }
-
-      // NOTE: Kiểm tra email hợp lệ
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({
-          success: false,
-          message: "Định dạng email không hợp lệ"
-        });
-      }
-
-      // NOTE: Kiểm tra password length
-      if (password.length < 6) {
-        return res.status(400).json({
-          success: false,
-          message: "Mật khẩu phải có ít nhất 6 ký tự"
-        });
-      }
-
-      // NOTE: Kiểm tra role hợp lệ
-      const validRoles = ["sys_admin", "school_admin", "teacher", "student", "parent", "staff"];
-      if (!validRoles.includes(role)) {
-        return res.status(400).json({
-          success: false,
-          message: "Vai trò không hợp lệ"
-        });
-      }
-
       // NOTE: Kiểm tra email đã tồn tại chưa
       const existingUser = await UserService.findUserByEmail(email);
       if (existingUser) {

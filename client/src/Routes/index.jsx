@@ -26,18 +26,6 @@ import PaymentCancelPage from '../Pages/Payment/PaymentCancelPage';
 import DashboardPage from '../Pages/DashboardPage';
 import TestPage from '../Pages/TestPage';
 
-// Admin Pages
-import SystemDashboardPage from '../Pages/Admin/System/SystemDashboardPage';
-import TenantManagementPage from '../Pages/Admin/System/TenantManagementPage';
-import SystemAnalyticsPage from '../Pages/Admin/System/SystemAnalyticsPage';
-import SchoolDashboardPage from '../Pages/Admin/School/SchoolDashboardPage';
-import SchoolUsersPage from '../Pages/Admin/School/SchoolUsersPage';
-import SchoolClassesPage from '../Pages/Admin/School/SchoolClassesPage';
-import SchoolSubjectsPage from '../Pages/Admin/School/SchoolSubjectsPage';
-import SchoolAnnouncementsPage from '../Pages/Admin/School/SchoolAnnouncementsPage';
-import SchoolReportsPage from '../Pages/Admin/School/SchoolReportsPage';
-import SchoolSettingsPage from '../Pages/Admin/School/SchoolSettingsPage';
-
 // Feature Pages
 import ClassesPage from '../Pages/ClassesPage';
 import AssignmentsPage from '../Pages/AssignmentsPage';
@@ -56,28 +44,6 @@ import ExamsPage from '../Pages/ExamsPage';
 const ProtectedRoute = ({ children }) => {
   const { isLoggedIn } = useAuth();
   return isLoggedIn ? children : <Navigate to="/login" replace />;
-};
-
-// Component để route dashboard theo role
-const RoleDashboard = () => {
-  const { user } = useAuth();
-  
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  // Route dashboard dựa theo role
-  switch (user.role) {
-    case 'sys_admin':
-      return <SystemDashboardPage />;
-    case 'school_admin':
-      return <SchoolDashboardPage />;
-    case 'teacher':
-    case 'student':
-    case 'parent':
-    default:
-      return <DashboardPage />;
-  }
 };
 
 // Component cho các route public (VD: trang login, nếu đã đăng nhập thì redirect)
@@ -99,22 +65,7 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
   
-  if (!['school_admin', 'sys_admin'].includes(user?.role)) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  return children;
-};
-
-// Component cho các route yêu cầu quyền sys_admin
-const SystemAdminRoute = ({ children }) => {
-  const { user, isLoggedIn } = useAuth();
-  
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  if (user?.role !== 'sys_admin') {
+  if (user?.role !== 'admin' && user?.role !== 'sys_admin') {
     return <Navigate to="/dashboard" replace />;
   }
   
@@ -202,8 +153,8 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         >
-          {/* Trang mặc định - Dashboard dựa theo role */}
-          <Route index element={<RoleDashboard />} />
+          {/* Trang mặc định */}
+          <Route index element={<DashboardPage />} />
           
           {/* Test page để kiểm tra components */}
           <Route path="test" element={<TestPage />} />
@@ -219,74 +170,6 @@ const AppRouter = () => {
           {/* Exams Routes */}
           <Route path="exams" element={<ExamsPage />} />
           {/* <Route path="exams/:id" element={<ExamDetailPage />} /> */}
-          
-          {/* System Admin Routes */}
-          <Route 
-            path="admin/system/tenant-management" 
-            element={
-              <SystemAdminRoute>
-                <TenantManagementPage />
-              </SystemAdminRoute>
-            } 
-          />
-          <Route 
-            path="admin/system/system-analytics" 
-            element={
-              <SystemAdminRoute>
-                <SystemAnalyticsPage />
-              </SystemAdminRoute>
-            } 
-          />
-          
-          {/* School Admin Routes */}
-          <Route 
-            path="admin/school/users" 
-            element={
-              <AdminRoute>
-                <SchoolUsersPage />
-              </AdminRoute>
-            } 
-          />
-          <Route 
-            path="admin/school/classes" 
-            element={
-              <AdminRoute>
-                <SchoolClassesPage />
-              </AdminRoute>
-            } 
-          />
-          <Route 
-            path="admin/school/subjects" 
-            element={
-              <AdminRoute>
-                <SchoolSubjectsPage />
-              </AdminRoute>
-            } 
-          />
-          <Route 
-            path="admin/school/announcements" 
-            element={
-              <AdminRoute>
-                <SchoolAnnouncementsPage />
-              </AdminRoute>
-            } 
-          />
-          <Route 
-            path="admin/school/reports" 
-            element={
-              <AdminRoute>
-                <SchoolReportsPage />
-              </AdminRoute>
-            } 
-          />
-          <Route 
-            path="admin/school/settings" 
-            element={
-              <AdminRoute>
-                <SchoolSettingsPage />
-              </AdminRoute>
-            } 
-          />
           
           {/* User Management Routes (Admin only) */}
           {/* <Route 

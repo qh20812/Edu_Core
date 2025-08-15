@@ -1,109 +1,73 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useUI } from '../../../Hooks/useUI';
+import { useTenants, useApproveTenant, useRejectTenant } from '../../../Hooks/useSystemQueries';
 import { FaBuilding, FaCheck, FaTimes, FaEye, FaSearch, FaFilter, FaUsers, FaCrown } from 'react-icons/fa';
 
 const TenantManagementPage = () => {
   const { showSuccess, showError, showWarning } = useUI();
   
-  const [tenants, setTenants] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedTenant, setSelectedTenant] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Load tenants từ API
-  const loadTenants = useCallback(async () => {
+  // Use TanStack Query hooks
+  const { data: tenantsResponse, isLoading: loading, error } = useTenants();
+  const approveMutation = useApproveTenant();
+  const rejectMutation = useRejectTenant();
+
+  // Extract tenants array safely from TanStack Query response
+  const tenants = Array.isArray(tenantsResponse?.data) ? tenantsResponse.data : [];
+
+  // Handle approve tenant using mutation
+  const handleApprove = useCallback(async (tenantId) => {
     try {
-      setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/all`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Tenant API response:', data); // Debug log
-        
-        // Ensure we always set an array
-        let tenantsArray = [];
-        if (data.data) {
-          if (Array.isArray(data.data)) {
-            tenantsArray = data.data;
-          } else if (data.data.data && Array.isArray(data.data.data)) {
-            tenantsArray = data.data.data;
-          } else {
-            console.warn('Unexpected data structure:', data.data);
-          }
-        }
-        
-        setTenants(tenantsArray);
-      } else {
-        showError('Không thể tải danh sách trường học');
-      }
-    } catch (err) {
-      console.error('Error loading tenants:', err);
-      showError('Lỗi kết nối khi tải dữ liệu');
-    } finally {
-      setLoading(false);
-    }
-  }, [showError]);
-
-  useEffect(() => {
-    loadTenants();
-  }, [loadTenants]);
-
-  const handleApprove = async (tenantId) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/${tenantId}/approve`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        showSuccess('Đã phê duyệt trường học thành công');
-        loadTenants();
-      } else {
-        showError('Không thể phê duyệt trường học');
-      }
+      await approveMutation.mutateAsync(tenantId);
+      showSuccess('Đã phê duyệt trường học thành công');
     } catch (err) {
       console.error('Error approving tenant:', err);
-      showError('Lỗi kết nối khi phê duyệt');
+      showError('Lỗi khi phê duyệt trường học');
     }
-  };
+  }, [approveMutation, showSuccess, showError]);
 
-  const handleReject = async (tenantId, reason) => {
+  // Handle reject tenant using mutation
+  const handleReject = useCallback(async (tenantId, reason) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/${tenantId}/reject`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ reason })
-      });
-
-      if (response.ok) {
-        showWarning('Đã từ chối đăng ký trường học');
-        loadTenants();
-      } else {
-        showError('Không thể từ chối đăng ký');
-      }
+      await rejectMutation.mutateAsync({ tenantId, reason });
+      showWarning('Đã từ chối đăng ký trường học');
     } catch (err) {
       console.error('Error rejecting tenant:', err);
-      showError('Lỗi kết nối khi từ chối');
+      showError('Lỗi khi từ chối đăng ký');
     }
-  };
+  }, [rejectMutation, showWarning, showError]);
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <FaTimes className="w-12 h-12 mx-auto text-red-600 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Lỗi tải dữ liệu
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            {error.message || 'Không thể tải danh sách trường học'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const filteredTenants = Array.isArray(tenants) ? tenants.filter(tenant => {
     const matchesSearch = tenant.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tenant.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tenant.email?.toLowerCase().includes(searchTerm.toLowerCase());
+                         tenant.school_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         tenant.contact_email?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || tenant.status === statusFilter;
     
@@ -150,7 +114,7 @@ const TenantManagementPage = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Mã trường
               </label>
-              <p className="mt-1 text-sm text-gray-900 dark:text-white">{tenant.code}</p>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{tenant.school_code || 'Chưa có'}</p>
             </div>
           </div>
 
@@ -159,13 +123,13 @@ const TenantManagementPage = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email liên hệ
               </label>
-              <p className="mt-1 text-sm text-gray-900 dark:text-white">{tenant.email}</p>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{tenant.contact_email || 'Chưa có'}</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Số điện thoại
               </label>
-              <p className="mt-1 text-sm text-gray-900 dark:text-white">{tenant.phone}</p>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{tenant.contact_phone || 'Chưa có'}</p>
             </div>
           </div>
 
@@ -198,10 +162,11 @@ const TenantManagementPage = () => {
                   handleApprove(tenant._id);
                   onClose();
                 }}
-                className="flex-1 px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
+                disabled={approveMutation.isPending}
+                className="flex-1 px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaCheck className="inline mr-2" />
-                Phê duyệt
+                {approveMutation.isPending ? 'Đang phê duyệt...' : 'Phê duyệt'}
               </button>
               <button
                 onClick={() => {
@@ -211,10 +176,11 @@ const TenantManagementPage = () => {
                     onClose();
                   }
                 }}
-                className="flex-1 px-4 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
+                disabled={rejectMutation.isPending}
+                className="flex-1 px-4 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaTimes className="inline mr-2" />
-                Từ chối
+                {rejectMutation.isPending ? 'Đang từ chối...' : 'Từ chối'}
               </button>
             </div>
           )}
@@ -226,7 +192,10 @@ const TenantManagementPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="w-32 h-32 border-b-2 border-blue-600 rounded-full animate-spin"></div>
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Đang tải danh sách trường học...</p>
+        </div>
       </div>
     );
   }
@@ -370,13 +339,13 @@ const TenantManagementPage = () => {
                           {tenant.name}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {tenant.email}
+                          {tenant.contact_email || 'Chưa có email'}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-white">
-                    {tenant.code}
+                    {tenant.school_code || 'Chưa có mã'}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-white">
                     {tenant.school_type}
@@ -385,7 +354,7 @@ const TenantManagementPage = () => {
                     {getStatusBadge(tenant.status)}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-white">
-                    {new Date(tenant.createdAt).toLocaleDateString('vi-VN')}
+                    {tenant.created_at ? new Date(tenant.created_at).toLocaleDateString('vi-VN') : 'N/A'}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                     <div className="flex space-x-2">
@@ -402,7 +371,8 @@ const TenantManagementPage = () => {
                         <>
                           <button
                             onClick={() => handleApprove(tenant._id)}
-                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                            disabled={approveMutation.isPending}
+                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 disabled:opacity-50"
                           >
                             <FaCheck />
                           </button>
@@ -411,7 +381,8 @@ const TenantManagementPage = () => {
                               const reason = prompt('Lý do từ chối:');
                               if (reason) handleReject(tenant._id, reason);
                             }}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                            disabled={rejectMutation.isPending}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
                           >
                             <FaTimes />
                           </button>
