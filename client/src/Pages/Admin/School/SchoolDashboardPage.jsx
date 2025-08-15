@@ -8,12 +8,12 @@ import {
   FaChartLine,
   FaCog,
 } from "react-icons/fa";
-import { useUI } from "../../Hooks/useUI";
-import Button from "../../Components/UI/Button";
-import StatCard from "../../Components/UI/StatCard";
-import SectionCard from "../../Components/UI/SectionCard";
-import ListItem from "../../Components/UI/ListItem";
-import { userService, classService, assignmentService } from '../../Services';
+import { useUI } from "../../../Hooks/useUI";
+import Button from "../../../Components/UI/Button";
+import StatCard from "../../../Components/UI/StatCard";
+import SectionCard from "../../../Components/UI/SectionCard";
+import ListItem from "../../../Components/UI/ListItem";
+import { userService, classService, assignmentService } from '../../../Services';
 
 const SchoolDashboardPage = () => {
   const { t } = useTranslation();
@@ -156,6 +156,7 @@ const SchoolDashboardPage = () => {
           loading={isLoading}
         />
       </div>
+
       {/* Quick Actions */}
       <SectionCard
         title={t("schoolDashboard.quickActions")}
