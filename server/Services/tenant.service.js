@@ -184,20 +184,28 @@ class TenantService {
   // Check if tenant can add more students with cache
   async canAddStudents(tenantId, additionalCount = 1) {
     try {
+      console.log('TenantService.canAddStudents called with tenantId:', tenantId, 'additionalCount:', additionalCount);
+      
       const cacheKey = `tenant:${tenantId}:student_limit`;
+      console.log('Cache key:', cacheKey);
       
       const result = await cacheService.wrap(
         cacheKey,
         async () => {
+          console.log('Cache miss, fetching from database...');
           const tenant = await Tenant.findById(tenantId);
+          console.log('Found tenant:', tenant ? { id: tenant._id, name: tenant.name, max_students: tenant.max_students } : 'null');
+          
           if (!tenant) {
             throw new Error('Tenant not found');
           }
 
+          console.log('Counting students for tenant:', tenantId);
           const currentStudentCount = await User.countDocuments({
             tenant_id: tenantId,
             role: 'student'
           });
+          console.log('Current student count:', currentStudentCount);
 
           return {
             currentCount: currentStudentCount,
@@ -208,16 +216,21 @@ class TenantService {
         cacheService.TTL.SHORT // 5 minutes for student count
       );
 
+      console.log('Result from cache/db:', result);
+
       const newTotal = result.currentCount + additionalCount;
       const canAdd = newTotal <= result.maxAllowed;
 
-      return {
+      const finalResult = {
         canAdd,
         currentCount: result.currentCount,
         maxAllowed: result.maxAllowed,
         newTotal,
         remaining: result.remaining,
       };
+
+      console.log('Final result:', finalResult);
+      return finalResult;
     } catch (error) {
       console.error('Error checking student limit:', error);
       throw error;

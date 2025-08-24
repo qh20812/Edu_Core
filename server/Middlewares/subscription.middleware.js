@@ -4,18 +4,25 @@ const { errorResponse } = require('../Utils/responseHelper');
 // Middleware to check student limit before adding new students
 const checkStudentLimit = async (req, res, next) => {
   try {
+    console.log('checkStudentLimit middleware - req.body:', JSON.stringify(req.body, null, 2));
+    
     // Only check for student role
     if (req.body.role !== 'student') {
+      console.log('Role is not student, skipping check');
       return next();
     }
 
     const tenantId = req.body.tenant_id || req.user?.tenant_id;
+    console.log('tenantId:', tenantId);
     
     if (!tenantId) {
+      console.log('No tenant ID found');
       return errorResponse(res, 'Tenant ID is required', 400);
     }
 
+    console.log('Calling TenantService.canAddStudents with tenantId:', tenantId);
     const limitCheck = await TenantService.canAddStudents(tenantId, 1);
+    console.log('limitCheck result:', limitCheck);
     
     if (!limitCheck.canAdd) {
       return errorResponse(res, 
@@ -30,9 +37,11 @@ const checkStudentLimit = async (req, res, next) => {
       );
     }
 
+    console.log('Student limit check passed');
     next();
   } catch (error) {
     console.error('Error in checkStudentLimit middleware:', error);
+    console.error('Error stack:', error.stack);
     return errorResponse(res, 'Error checking student limit', 500);
   }
 };
