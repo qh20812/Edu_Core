@@ -29,11 +29,18 @@
     "serverStatus": "Server Status",
     "recentSchools": "Recent Schools",
     "recentSchoolsSubtitle": "List of schools that recently joined the system",
-    "systemHealth": "System Health",
     "systemHealthSubtitle": "Operating status of core services",
     "active": "Active",
     "pending": "Pending",
-    "users": "users"
+    "users": "Users",
+    "online": "Online",
+    "warning": "Warning",
+    "systemHealth":"System Health",
+    "apiServer": "API Server",
+    "fileStorage": "File Storage",
+    "emailService": "Email Service",
+    "noRecentSchools": "No Recent Schools",
+    "noHealthData": "No Health Data Available"
   },
   "teacherDashboard":{
     "title": "Overview",
@@ -91,6 +98,17 @@
     "priorityMedium": "Medium",
     "priorityLow": "Low"
   },
+  "dashboard": {
+    "welcome": "Welcome",
+    "overview": "Overview",
+    "student": {
+      "subtitle": "Overview of your learning progress"
+    },
+    "totalAssignments": "Total Assignments",
+    "completedAssignments": "Completed",
+    "pendingAssignments": "Pending",
+    "upcomingExams": "Upcoming Exams"
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",
@@ -112,6 +130,53 @@
     "update": "Update",
     "unknown": "Unknown",
     "notifications": "Notifications"
+  },
+  "ui": {
+    "statusBadge": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending", 
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "suspended": "Suspended",
+      "online": "Online",
+      "offline": "Offline",
+      "healthy": "Healthy",
+      "warning": "Warning",
+      "error": "Error",
+      "success": "Success",
+      "failed": "Failed",
+      "processing": "Processing",
+      "completed": "Completed"
+    },
+    "loadingSkeletons": {
+      "loadingData": "Loading data...",
+      "noDataAvailable": "No data available"
+    },
+    "dashboardHeader": {
+      "defaultActions": {
+        "refresh": "Refresh",
+        "settings": "Settings",
+        "export": "Export",
+        "import": "Import",
+        "add": "Add New",
+        "edit": "Edit",
+        "delete": "Delete",
+        "view": "View"
+      }
+    },
+    "services": {
+      "database": "Database",
+      "redis": "Redis Cache", 
+      "storage": "Storage",
+      "notification": "Notification",
+      "authentication": "Authentication",
+      "authorization": "Authorization",
+      "logging": "Logging",
+      "monitoring": "Monitoring",
+      "backup": "Backup",
+      "cdn": "Content Delivery Network"
+    }
   },
   "auth": {
     "login": "Login",
@@ -146,7 +211,22 @@
     "profile": "Profile",
     "grading": "Grading",
     "grades": "Grades",
-    "schedule": "Schedule"
+    "schedule": "Schedule",
+    "children": "Children",
+    "progress": "Progress",
+    "schools": "Schools",
+    "subjects": "Subjects",
+    "announcements": "Announcements",
+    "reports": "Reports",
+    "tenantManagement": "School Management",
+    "systemAnalytics": "System Analytics",
+    "globalUserManagement": "Global User Management",
+    "systemLogs": "System Logs",
+    "serverMonitor": "Server Monitor",
+    "schoolUsers": "School Users",
+    "schoolClasses": "School Classes",
+    "schoolReports": "School Reports",
+    "schoolSettings": "School Settings"
   },
   "classes": {
     "title": "Class Management",
@@ -188,6 +268,51 @@
     "physics": "Physics",
     "computer_science": "Computer Science",
     "music": "Music"
+  },
+  "tenantManagement": {
+    "title": "School Management",
+    "subtitle": "Approve and manage schools in the system",
+    "totalSchools": "Total Schools",
+    "pendingApproval": "Pending Approval",
+    "activeSchools": "Active",
+    "rejectedSchools": "Rejected",
+    "searchPlaceholder": "Search by name, school code, email...",
+          "allStatuses": "All statuses",
+      "noResultsFilter": "No schools found matching the filter criteria.",
+      "noResultsEmpty": "No schools have registered yet.",
+    "pending": "Pending",
+    "active": "Active",
+    "rejected": "Rejected",
+    "suspended": "Suspended",
+    "schoolName": "School",
+    "schoolCode": "School Code",
+    "schoolType": "School Type",
+    "status": "Status",
+    "registrationDate": "Registration Date",
+    "actions": "Actions",
+    "viewDetails": "View Details",
+    "approve": "Approve",
+    "reject": "Reject",
+    "schoolDetails": "School Details",
+    "contactEmail": "Contact Email",
+    "contactPhone": "Phone Number",
+    "address": "Address",
+    "noCode": "No code",
+    "noEmail": "No email",
+    "noPhone": "No phone",
+    "approveSuccess": "School approved successfully",
+    "approveError": "Error approving school",
+    "rejectSuccess": "School registration rejected",
+    "rejectError": "Error rejecting registration",
+    "rejectReason": "Rejection reason:",
+    "approving": "Approving...",
+    "rejecting": "Rejecting...",
+    "loadError": "Data loading error",
+    "loadErrorMessage": "Unable to load school list",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "noSchoolsFound": "No schools found matching the filter.",
+    "noSchoolsRegistered": "No schools have registered yet."
   },
   "landingPage":{
     "title": ""

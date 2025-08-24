@@ -29,11 +29,18 @@
     "serverStatus": "Trạng thái server",
     "recentSchools": "Trường học gần đây",
     "recentSchoolsSubtitle": "Danh sách các trường học mới tham gia hệ thống",
-    "systemHealth": "Tình trạng hệ thống",
     "systemHealthSubtitle": "Trạng thái hoạt động của các dịch vụ chính",
     "active": "Hoạt động",
     "pending": "Chờ duyệt",
-    "users": "người dùng"
+    "users": "người dùng",
+    "online": "Trực tuyến",
+    "warning": "Cảnh báo",
+    "systemHealth":"Tình trạng hệ thống",
+    "apiServer": "Máy chủ API",
+    "fileStorage": "Lưu trữ tệp",
+    "emailService": "Dịch vụ email",
+    "noRecentSchools": "Không có trường học gần đây",
+    "noHealthData": "Không có dữ liệu tình trạng hệ thống"
   },
   "teacherDashboard":{
     "title": "Tổng quan",
@@ -60,8 +67,10 @@
     "hoursAgo": "giờ trước",
     "daysAgo": "ngày trước"
   },
-  "studentDashboard":{
-    "title":"Tổng quan",
+  "dashboard": {
+    "welcome": "Chào mừng",
+    "overview": "Tổng quan",
+    "title": "Tổng quan",
     "subtitle": "Quản lý bài tập và bài kiểm tra của bạn",
     "viewAssignments": "Xem bài tập",
     "viewExams": "Xem bài kiểm tra",
@@ -89,7 +98,10 @@
     "assignment": "Bài tập",
     "priorityHigh": "Cao",
     "priorityMedium": "Trung bình",
-    "priorityLow": "Thấp"
+    "priorityLow": "Thấp",
+    "student": {
+      "subtitle": "Tổng quan về quá trình học tập của bạn"
+    }
   },
   "common": {
     "loading": "Đang tải...",
@@ -112,6 +124,53 @@
     "update": "Cập nhật",
     "unknown": "Không xác định",
     "notifications": "Thông báo"
+  },
+  "ui": {
+    "statusBadge": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động", 
+      "pending": "Chờ duyệt",
+      "approved": "Đã duyệt",
+      "rejected": "Bị từ chối",
+      "suspended": "Tạm ngưng",
+      "online": "Trực tuyến",
+      "offline": "Ngoại tuyến",
+      "healthy": "Khỏe mạnh",
+      "warning": "Cảnh báo",
+      "error": "Lỗi",
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "processing": "Đang xử lý",
+      "completed": "Hoàn thành"
+    },
+    "loadingSkeletons": {
+      "loadingData": "Đang tải dữ liệu...",
+      "noDataAvailable": "Không có dữ liệu"
+    },
+    "dashboardHeader": {
+      "defaultActions": {
+        "refresh": "Làm mới",
+        "settings": "Cài đặt",
+        "export": "Xuất dữ liệu",
+        "import": "Nhập dữ liệu",
+        "add": "Thêm mới",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "view": "Xem"
+      }
+    },
+    "services": {
+      "database": "Cơ sở dữ liệu",
+      "redis": "Redis Cache",
+      "storage": "Lưu trữ",
+      "notification": "Thông báo",
+      "authentication": "Xác thực",
+      "authorization": "Phân quyền",
+      "logging": "Ghi nhật ký",
+      "monitoring": "Giám sát",
+      "backup": "Sao lưu",
+      "cdn": "Mạng phân phối nội dung"
+    }
   },
   "auth": {
     "login": "Đăng nhập",
@@ -204,7 +263,52 @@
     "computer_science": "Tin học",
     "music": "Âm nhạc"
   },
-  "landingPage":{
+  "tenantManagement": {
+    "title": "Quản lý trường học",
+    "subtitle": "Duyệt và quản lý các trường học trong hệ thống",
+    "totalSchools": "Tổng số trường",
+    "pendingApproval": "Chờ duyệt",
+    "activeSchools": "Hoạt động",
+    "rejectedSchools": "Từ chối",
+    "searchPlaceholder": "Tìm kiếm theo tên, mã trường, email...",
+          "allStatuses": "Tất cả trạng thái",
+      "noResultsFilter": "Không tìm thấy trường học phù hợp với bộ lọc.",
+      "noResultsEmpty": "Chưa có trường học nào đăng ký.",
+    "pending": "Chờ duyệt",
+    "active": "Hoạt động",
+    "rejected": "Từ chối",
+    "suspended": "Tạm ngưng",
+    "schoolName": "Trường học",
+    "schoolCode": "Mã trường",
+    "schoolType": "Loại trường",
+    "status": "Trạng thái",
+    "registrationDate": "Ngày đăng ký",
+    "actions": "Thao tác",
+    "viewDetails": "Xem chi tiết",
+    "approve": "Phê duyệt",
+    "reject": "Từ chối",
+    "schoolDetails": "Chi tiết trường học",
+    "contactEmail": "Email liên hệ",
+    "contactPhone": "Số điện thoại",
+    "address": "Địa chỉ",
+    "noCode": "Chưa có mã",
+    "noEmail": "Chưa có email",
+    "noPhone": "Chưa có",
+    "approveSuccess": "Đã phê duyệt trường học thành công",
+    "approveError": "Lỗi khi phê duyệt trường học",
+    "rejectSuccess": "Đã từ chối đăng ký trường học",
+    "rejectError": "Lỗi khi từ chối đăng ký",
+    "rejectReason": "Lý do từ chối:",
+    "approving": "Đang phê duyệt...",
+    "rejecting": "Đang từ chối...",
+    "loadError": "Lỗi tải dữ liệu",
+    "loadErrorMessage": "Không thể tải danh sách trường học",
+    "retry": "Thử lại",
+    "refresh": "Làm mới",
+    "noSchoolsFound": "Không tìm thấy trường học phù hợp với bộ lọc.",
+    "noSchoolsRegistered": "Chưa có trường học nào đăng ký."
+  },
+  "landingPage": {
     "title": "Trang đích"
   }
 }

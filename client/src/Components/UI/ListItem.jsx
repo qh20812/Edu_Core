@@ -15,20 +15,21 @@ const ListItem = ({
   return (
     <div 
       className={clsx(
-        'flex items-center justify-between p-4 rounded-lg',
-        'bg-gray-50 dark:bg-slate-700 transition-all duration-200',
-        onClick && 'cursor-pointer hover:shadow-md hover:bg-gray-100 dark:hover:bg-slate-600',
+        'flex items-center justify-between p-4 rounded-lg transition-all duration-200',
+        'bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:shadow-md',
+        'dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600',
+        onClick && 'cursor-pointer',
         className
       )}
       onClick={onClick}
       {...props}
     >
       {/* Left side - Icon + Content */}
-      <div className="flex items-center space-x-3 flex-1">
+      <div className="flex items-center flex-1 space-x-3">
         {/* Icon */}
         {icon && (
           <div className="flex-shrink-0">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-white dark:bg-slate-800 shadow-sm">
+            <div className="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-600">
               {icon}
             </div>
           </div>
@@ -37,7 +38,7 @@ const ListItem = ({
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Title */}
-          <p className="text-sm font-medium text-foreground truncate">
+          <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
             {title}
           </p>
           
@@ -50,7 +51,7 @@ const ListItem = ({
           
           {/* Meta info */}
           {meta && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
               {meta}
             </p>
           )}
@@ -58,7 +59,7 @@ const ListItem = ({
       </div>
 
       {/* Right side - Status + Actions */}
-      <div className="flex items-center space-x-3 flex-shrink-0">
+      <div className="flex items-center flex-shrink-0 space-x-3">
         {/* Status */}
         {status && (
           <div className="flex items-center">

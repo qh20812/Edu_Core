@@ -17,6 +17,7 @@ import Button from "../../Components/UI/Button";
 import StatCard from "../../Components/UI/StatCard";
 import SectionCard from "../../Components/UI/SectionCard";
 import ListItem from "../../Components/UI/ListItem";
+import DashboardHeader from "../../Components/UI/DashboardHeader";
 
 const StudentDashboardPage = () => {
   const { t } = useTranslation();
@@ -67,16 +68,11 @@ const StudentDashboardPage = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {t("dashboard.welcome", "Chào mừng")}, {user?.full_name || "Học sinh"}!
-          </h1>
-          <p className="mt-1 text-gray-600 dark:text-gray-400">
-            {t("dashboard.student.subtitle", "Tổng quan về quá trình học tập của bạn")}
-          </p>
-        </div>
-      </div>
+      <DashboardHeader
+        title={t("dashboard.welcome", "Chào mừng") + `, ${user?.full_name || "Học sinh"}!`}
+        subtitle={t("dashboard.student.subtitle", "Tổng quan về quá trình học tập của bạn")}
+        titleClassName="text-3xl font-bold text-gray-900 dark:text-white"
+      />
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">

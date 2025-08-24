@@ -7,7 +7,7 @@ export const useSystemAnalytics = () => {
   return useQuery({
     queryKey: queryKeys.system.analytics,
     queryFn: async () => {
-      const response = await apiClient.get('/api/system/analytics');
+      const response = await apiClient.get('/system/analytics');
       return response.data;
     },
     staleTime: 1000 * 60 * 2, // 2 minutes - analytics cần fresh hơn
@@ -20,7 +20,7 @@ export const useSystemHealth = () => {
   return useQuery({
     queryKey: queryKeys.system.health,
     queryFn: async () => {
-      const response = await apiClient.get('/api/system/health');
+      const response = await apiClient.get('/system/health');
       return response.data;
     },
     staleTime: 1000 * 30, // 30 seconds
@@ -34,7 +34,7 @@ export const useTenants = (filters = {}) => {
     queryKey: queryKeys.tenants.all,
     queryFn: async () => {
       const params = new URLSearchParams(filters);
-      const response = await apiClient.get(`/api/tenants/all?${params}`);
+      const response = await apiClient.get(`/tenant/all?${params}`);
       return response.data;
     },
     staleTime: 1000 * 60 * 3, // 3 minutes
@@ -45,7 +45,7 @@ export const useTenants = (filters = {}) => {
 export const useApproveTenant = () => {
   return useMutation({
     mutationFn: async (tenantId) => {
-      const response = await apiClient.put(`/api/tenants/${tenantId}/approve`);
+      const response = await apiClient.put(`/tenant/${tenantId}/approve`);
       return response.data;
     },
     onSuccess: () => {
@@ -60,7 +60,7 @@ export const useApproveTenant = () => {
 export const useRejectTenant = () => {
   return useMutation({
     mutationFn: async ({ tenantId, reason }) => {
-      const response = await apiClient.put(`/api/tenants/${tenantId}/reject`, { reason });
+      const response = await apiClient.put(`/tenant/${tenantId}/reject`, { reason });
       return response.data;
     },
     onSuccess: () => {
@@ -76,7 +76,7 @@ export const useCurrentUser = () => {
   return useQuery({
     queryKey: queryKeys.auth.me,
     queryFn: async () => {
-      const response = await apiClient.get('/api/auth/me');
+      const response = await apiClient.get('/auth/me');
       return response.data;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
@@ -88,7 +88,7 @@ export const useCurrentUser = () => {
 export const useLogin = () => {
   return useMutation({
     mutationFn: async ({ email, password }) => {
-      const response = await apiClient.post('/api/auth/login', { email, password });
+      const response = await apiClient.post('/auth/login', { email, password });
       return response.data;
     },
     onSuccess: (data) => {
@@ -104,7 +104,7 @@ export const useLogin = () => {
 export const useLogout = () => {
   return useMutation({
     mutationFn: async () => {
-      const response = await apiClient.post('/api/auth/logout');
+      const response = await apiClient.post('/auth/logout');
       return response.data;
     },
     onSuccess: () => {
@@ -119,7 +119,7 @@ export const useLogout = () => {
 export const useRegisterTenant = () => {
   return useMutation({
     mutationFn: async (tenantData) => {
-      const response = await apiClient.post('/api/tenants/register', tenantData);
+      const response = await apiClient.post('/tenant/register', tenantData);
       return response.data;
     },
     onSuccess: () => {

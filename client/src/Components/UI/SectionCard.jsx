@@ -15,9 +15,9 @@ const SectionCard = ({
   return (
     <div 
       className={clsx(
-        'p-6 bg-white rounded-xl shadow-xl border border-gray-100',
-        'dark:bg-slate-800 dark:border-slate-700',
-        'transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10',
+        'p-6 rounded-xl border transition-all duration-300',
+        'bg-white border-gray-200 shadow-lg hover:shadow-xl hover:shadow-blue-100/50',
+        'dark:bg-gray-800 dark:border-gray-600 dark:shadow-xl dark:hover:shadow-2xl dark:hover:shadow-blue-900/20',
         'backdrop-blur-sm',
         className
       )}
@@ -28,7 +28,7 @@ const SectionCard = ({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-3">
             {icon && (
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 dark:bg-primary/20">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800/30">
                 {icon}
               </div>
             )}

@@ -19,6 +19,7 @@ import Button from "../../Components/UI/Button";
 import StatCard from "../../Components/UI/StatCard";
 import SectionCard from "../../Components/UI/SectionCard";
 import ListItem from "../../Components/UI/ListItem";
+import DashboardHeader from "../../Components/UI/DashboardHeader";
 
 const TeacherDashboardPage = () => {
   const { t } = useTranslation();
@@ -142,26 +143,24 @@ const TeacherDashboardPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-5xl font-bold text-blue-600 text-shadow-2xs">
-            {t("teacherDashboard.title")}
-          </h1>
-          <p className="mt-1 text-gray-600 dark:text-gray-400">
-            {t("teacherDashboard.subtitle")}
-          </p>
-        </div>
-        <div className="flex space-x-3">
-          <Button variant="primary">
-            <FaPlus className="inline mr-2" />
-            {t("teacherDashboard.addhomework")}
-          </Button>
-          <Button variant="accent">
-            <FaEye className="inline mr-2" />
-            {t("teacherDashboard.viewClass")}
-          </Button>
-        </div>
-      </div>
+      <DashboardHeader
+        title={t("teacherDashboard.title")}
+        subtitle={t("teacherDashboard.subtitle")}
+        actions={[
+          {
+            label: t("teacherDashboard.addhomework"),
+            icon: <FaPlus />,
+            onClick: () => {/* Handle add homework */},
+            variant: 'primary'
+          },
+          {
+            label: t("teacherDashboard.viewClass"),
+            icon: <FaEye />,
+            onClick: () => {/* Handle view class */},
+            variant: 'secondary'
+          }
+        ]}
+      />
 
       {/* Khu vực thống kê */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">

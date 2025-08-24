@@ -96,10 +96,11 @@ const Sidebar = () => {
 
     return cn(
       'group flex items-center p-3 rounded-lg transition-all duration-200 relative overflow-hidden',
-      'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400',
+      'text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400',
+      'hover:bg-blue-50 dark:hover:bg-gray-800',
       isItemActive 
-        ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-400' 
-        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+        ? 'bg-blue-100 text-blue-700 border-r-4 border-blue-600 shadow-md dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-400 font-semibold' 
+        : ''
     );
   };
   const handleLogout = async () => {
@@ -118,8 +119,10 @@ const Sidebar = () => {
 
   return (
     <aside className={cn(
-      'fixed inset-y-0 left-0 z-50 flex flex-col border-r transition-all duration-300 ease-in-out shadow-lg',
-      'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700',
+      'fixed inset-y-0 left-0 z-50 flex flex-col border-r transition-all duration-300 ease-in-out',
+      'bg-white dark:bg-gray-900',
+      'border-gray-200 dark:border-gray-700',
+      'shadow-xl dark:shadow-2xl',
       isSidebarOpen ? 'w-72' : 'w-16'
     )}>
       {/* Brand Section */}
@@ -162,7 +165,7 @@ const Sidebar = () => {
               <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-100">
                 {user?.full_name}
               </p>
-              <p className="text-xs text-gray-500 truncate dark:text-gray-400">
+              <p className="text-xs text-gray-600 truncate dark:text-gray-400">
                 {t(`roles.${user?.role}`)}
               </p>
             </div>
@@ -218,7 +221,7 @@ const Sidebar = () => {
           onClick={handleLogout} 
           className={cn(
             'group flex items-center p-3 rounded-lg transition-all duration-200 relative overflow-hidden w-full text-left',
-            'text-gray-600 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400',
+            'text-gray-700 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400',
             'hover:bg-red-50 dark:hover:bg-red-900/30'
           )}
         >

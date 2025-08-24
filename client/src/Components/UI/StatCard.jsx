@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { useUI } from '../../Hooks/useUI';
 
 const StatCard = ({ 
   title, 
@@ -12,6 +13,7 @@ const StatCard = ({
   className 
 }) => {
   const { t } = useTranslation();
+  const { isDarkMode } = useUI();
   // Color variants for different card types with enhanced gradients and styling
   const colorVariants = {
     primary: {
@@ -90,14 +92,27 @@ const StatCard = ({
 
   return (
     <div 
+      data-component="stat-card"
       className={clsx(
-        'relative p-6 bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300',
-        'shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105',
-        colors.border,
-        colors.shadow,
+        'stat-card relative p-6 rounded-2xl border transition-all duration-300',
+        // Light mode: white background with better shadow and border
+        'bg-white dark:bg-gray-800',
+        'border-gray-200 dark:border-gray-600',
+        'shadow-lg hover:shadow-xl dark:shadow-xl dark:hover:shadow-2xl',
+        // Enhanced hover effects for light mode
+        'hover:shadow-blue-200/50 dark:hover:shadow-blue-900/20',
+        'transform hover:-translate-y-1 hover:scale-[1.02]',
         onClick ? 'cursor-pointer' : '',
         className
       )}
+      style={{
+        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+        color: isDarkMode ? '#f9fafb' : '#111827',
+        boxShadow: isDarkMode 
+          ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          : '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.3s ease'
+      }}
       onClick={onClick}
     >
       {/* Subtle background gradient overlay */}
@@ -113,19 +128,28 @@ const StatCard = ({
           colors.iconBg
         )}>
           <div className={clsx('text-3xl transition-transform duration-300 hover:scale-110', colors.iconColor)}>
-            {icon}
+            {typeof icon === 'function' ? React.createElement(icon) : icon}
           </div>
         </div>
 
         {/* Content Section */}
         <div className="flex-1 min-w-0">
-          <p className="mb-2 text-sm font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
+          <p className={clsx(
+            "mb-2 text-sm font-semibold tracking-wider uppercase",
+            isDarkMode ? "text-gray-400" : "text-gray-600"
+          )}>
             {title}
           </p>
           {loading ? (
-            <div className="w-24 rounded-lg h-9 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 animate-pulse"></div>
+            <div className={clsx(
+              "w-24 rounded-lg h-9 animate-pulse",
+              isDarkMode ? "bg-gradient-to-r from-gray-700 to-gray-600" : "bg-gradient-to-r from-gray-200 to-gray-300"
+            )}></div>
           ) : (
-            <p className="text-3xl font-bold text-gray-900 truncate dark:text-gray-100">
+            <p className={clsx(
+              "text-3xl font-bold truncate",
+              isDarkMode ? "text-gray-100" : "text-gray-900"
+            )}>
               {value}
             </p>
           )}
@@ -136,7 +160,10 @@ const StatCard = ({
               'w-2 h-2 rounded-full animate-pulse',
               colors.background
             )}></div>
-            <span className="text-xs text-gray-400 dark:text-gray-500">
+            <span className={clsx(
+              "text-xs",
+              isDarkMode ? "text-gray-500" : "text-gray-500"
+            )}>
                 {loading ? t('common.loading') : t('common.update')}
             </span>
           </div>

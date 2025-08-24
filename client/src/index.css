@@ -1,1 +1,81 @@
 @import "tailwindcss";
+
+/* Improved CSS with smart overrides that don't conflict with component styling */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Root container theme management */
+html:not(.dark) #root {
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+html.dark #root {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+/* Dashboard layout background - only target the main layout container */
+html:not(.dark) .dashboard-layout {
+  background-color: #f9fafb !important;
+}
+
+html.dark .dashboard-layout {
+  background-color: #111827 !important;
+}
+
+/* Force theme for specific containers that Tailwind might miss - use specific selectors */
+html:not(.dark) main {
+  background-color: inherit;
+}
+
+html.dark main {
+  background-color: inherit;
+}
+
+/* Only override sidebar and header backgrounds if Tailwind classes fail */
+html:not(.dark) aside[class*="bg-gray-900"] {
+  background-color: #ffffff !important;
+}
+
+html.dark aside[class*="bg-white"] {
+  background-color: #111827 !important;
+}
+
+html:not(.dark) header[class*="bg-gray-900"] {
+  background-color: #ffffff !important;
+}
+
+html.dark header[class*="bg-white"] {
+  background-color: #111827 !important;
+}
+
+/* Ensure cards and components render with proper contrast */
+html:not(.dark) [class*="bg-gray-800"],
+html:not(.dark) [class*="bg-gray-900"] {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+html.dark [class*="bg-white"] {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+/* StatCard specific fixes */
+html:not(.dark) .stat-card,
+html:not(.dark) [data-component="stat-card"] {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border-color: #e5e7eb !important;
+}
+
+html.dark .stat-card,
+html.dark [data-component="stat-card"] {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+  border-color: #374151 !important;
+}

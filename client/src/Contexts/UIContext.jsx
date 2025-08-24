@@ -60,6 +60,13 @@ export const UIProvider = ({ children }) => {
   // FEATURE: Notification system
   const [notifications, setNotifications] = useState([]);
 
+  // FEATURE: Device detection state
+  const [deviceInfo, setDeviceInfo] = useState({
+    isMobile: typeof window !== 'undefined' ? window.innerWidth < 768 : false,
+    isTablet: typeof window !== 'undefined' ? window.innerWidth >= 768 && window.innerWidth < 1024 : false,
+    isDesktop: typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
+  });
+
   // FEATURE: Responsive sidebar handling và system theme detection
   useEffect(() => {
     const handleResize = () => {
@@ -73,6 +80,13 @@ export const UIProvider = ({ children }) => {
           localStorage.setItem('edu-sidebar-open', 'true');
         }
       }
+
+      // Update device info
+      setDeviceInfo({
+        isMobile: window.innerWidth < 768,
+        isTablet: window.innerWidth >= 768 && window.innerWidth < 1024,
+        isDesktop: window.innerWidth >= 1024,
+      });
     };
 
     // Listen for system theme changes
@@ -100,17 +114,20 @@ export const UIProvider = ({ children }) => {
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
 
+    // Force reflow to ensure class changes take effect immediately
+    root.offsetHeight;
+
     // Lưu theme vào localStorage (chỉ khi user manually thay đổi)
     localStorage.setItem('edu-theme', theme);
+    
+    // Debug log
+    console.log('Theme changed to:', theme, 'HTML classes:', root.className);
   }, [theme]);
 
   // FUNCTION: toggleTheme - Chuyển đổi giữa light/dark mode
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
-
-  // FUNCTION: toggleDarkMode - Alias cho toggleTheme
-  // (Removed unused toggleDarkMode variable assignment)
 
   // FUNCTION: toggleSidebar - Bật/tắt sidebar và lưu vào localStorage
   const toggleSidebar = () => {
@@ -226,9 +243,9 @@ export const UIProvider = ({ children }) => {
     showInfo,
     
     // Device info
-    isMobile: window.innerWidth < 768,
-    isTablet: window.innerWidth >= 768 && window.innerWidth < 1024,
-    isDesktop: window.innerWidth >= 1024,
+    isMobile: deviceInfo.isMobile,
+    isTablet: deviceInfo.isTablet,
+    isDesktop: deviceInfo.isDesktop,
   };
 
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>;

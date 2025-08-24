@@ -108,7 +108,37 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
   
-  if (user?.role !== 'admin' && user?.role !== 'sys_admin') {
+  if (user?.role !== 'admin' && user?.role !== 'sys_admin' && user?.role !== 'school_admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return children;
+};
+
+// Component cho các route yêu cầu quyền sys_admin
+const SysAdminRoute = ({ children }) => {
+  const { user, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (user?.role !== 'sys_admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return children;
+};
+
+// Component cho các route yêu cầu quyền school_admin trở lên
+const SchoolAdminRoute = ({ children }) => {
+  const { user, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (!['school_admin', 'sys_admin'].includes(user?.role)) {
     return <Navigate to="/dashboard" replace />;
   }
   
@@ -215,6 +245,26 @@ const AppRouter = () => {
           {/* Exams Routes */}
           <Route path="exams" element={<ExamsPage />} />
           {/* <Route path="exams/:id" element={<ExamDetailPage />} /> */}
+          
+          {/* Admin Routes - System Admin */}
+          <Route 
+            path="admin/system/tenant-management" 
+            element={
+              <SysAdminRoute>
+                <TenantManagementPage />
+              </SysAdminRoute>
+            } 
+          />
+          
+          {/* Admin Routes - School Admin */}
+          <Route 
+            path="admin/school/dashboard" 
+            element={
+              <SchoolAdminRoute>
+                <SchoolDashboardPage />
+              </SchoolAdminRoute>
+            } 
+          />
           
           {/* User Management Routes (Admin only) */}
           {/* <Route 
