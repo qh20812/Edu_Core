@@ -193,6 +193,8 @@ class TenantService {
         cacheKey,
         async () => {
           console.log('Cache miss, fetching from database...');
+          console.log('Mongoose connection state:', require('mongoose').connection.readyState);
+          
           const tenant = await Tenant.findById(tenantId);
           console.log('Found tenant:', tenant ? { id: tenant._id, name: tenant.name, max_students: tenant.max_students } : 'null');
           
@@ -201,6 +203,8 @@ class TenantService {
           }
 
           console.log('Counting students for tenant:', tenantId);
+          console.log('User model:', User.modelName);
+          
           const currentStudentCount = await User.countDocuments({
             tenant_id: tenantId,
             role: 'student'
