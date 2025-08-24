@@ -1,5 +1,24 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Import auth utilities
+import { clearAuthData, isPublicRoute, isValidTokenFormat } from '../Utils/authUtils';
+
+// Hàm helper để handle auth error và redirect
+const handleAuthError = (error) => {
+  console.warn('Auth error detected:', error);
+  clearAuthData();
+  
+  // Redirect về login page nếu không phải đang ở trang public
+  const currentPath = window.location.pathname;
+  
+  if (!isPublicRoute(currentPath)) {
+    // Sử dụng setTimeout để tránh conflict với React state updates
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 100);
+  }
+};
+
 // Hàm helper để tạo request
 const request = async (endpoint, method, body = null) => {
   const token = localStorage.getItem('token');
@@ -7,8 +26,13 @@ const request = async (endpoint, method, body = null) => {
     'Content-Type': 'application/json',
   };
 
-  if (token) {
+  // Validate token format before using
+  if (token && isValidTokenFormat(token)) {
     headers.Authorization = `Bearer ${token}`;
+  } else if (token) {
+    // Token format invalid, clear it
+    console.warn('Invalid token format detected, clearing auth data');
+    clearAuthData();
   }
 
   const config = {
@@ -25,14 +49,30 @@ const request = async (endpoint, method, body = null) => {
     const data = await response.json();
 
     if (!response.ok) {
+      // Xử lý các loại 401 error
+      if (response.status === 401) {
+        const errorMessage = data.message || 'Unauthorized';
+        
+        if (errorMessage.includes('expired') || errorMessage.includes('Token expired')) {
+          console.warn('Token expired');
+          handleAuthError('Token expired');
+          throw new Error('Session expired. Please login again.');
+        } else {
+          console.warn('Unauthorized access');
+          handleAuthError('Unauthorized');
+          throw new Error('Unauthorized access. Please login.');
+        }
+      }
+      
       throw new Error(data.message || 'Có lỗi xảy ra');
     }
 
     return data;
   } catch (error) {
     console.error(`API Error on ${method} ${endpoint}:`, error);
-    // Trả về một object lỗi để các service có thể xử lý
-    return { success: false, message: error.message };
+    
+    // Re-throw error để React Query có thể handle
+    throw error;
   }
 };
 

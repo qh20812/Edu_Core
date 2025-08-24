@@ -9,17 +9,31 @@ import { authService } from '../Services/auth.service';
 
 // Hook để lấy thông tin user hiện tại
 export const useCurrentUser = (options = {}) => {
+  const queryClient = useQueryClient();
+  
   return useQuery({
     queryKey: queryKeys.auth.me,
     queryFn: authService.getMe,
     staleTime: 1000 * 60 * 10, // 10 minutes
     retry: (failureCount, error) => {
-      // Không retry nếu là 401 (unauthorized)
-      if (error?.status === 401) return false;
+      // Không retry nếu là 401 (unauthorized) hoặc token expired
+      if (error?.message?.includes('expired') || 
+          error?.message?.includes('Unauthorized') ||
+          error?.status === 401) {
+        return false;
+      }
       return failureCount < 2;
     },
     // Chỉ fetch khi có token
     enabled: !!localStorage.getItem('token'),
+    onError: (error) => {
+      // Nếu token expired hoặc unauthorized, clear cache
+      if (error?.message?.includes('expired') || 
+          error?.message?.includes('Unauthorized')) {
+        console.warn('Auth error, clearing cache:', error.message);
+        queryClient.clear();
+      }
+    },
     ...options
   });
 };
@@ -166,26 +180,34 @@ export const useRefreshToken = () => {
 
 // Compound hook cho auth state
 export const useAuth = () => {
-  const { data, isLoading, error } = useCurrentUser();
-  const login = useLogin();
-  const logout = useLogout();
-  const register = useRegister();
+  const { data, isLoading, error, isError } = useCurrentUser();
+  const loginMutation = useLogin();
+  const logoutMutation = useLogout();
+  const registerMutation = useRegister();
   
   // Extract user và tenant từ response
   const user = data?.data?.user || null;
   const tenant = data?.data?.tenant || null;
   const token = localStorage.getItem('token');
   
+  // Nếu có error và là token expired, coi như không authenticated
+  const isTokenExpired = error?.message?.includes('expired') || 
+                        error?.message?.includes('Unauthorized');
+  
+  const isAuthenticated = !!user && !!token && !isTokenExpired;
+  
   return {
     user,
     tenant,
     token,
-    isLoading,
+    isLoading: isLoading || loginMutation.isPending || logoutMutation.isPending || registerMutation.isPending,
     error,
-    isAuthenticated: !!user && !!token,
-    login,
-    logout,
-    register,
+    isError,
+    isTokenExpired,
+    isAuthenticated,
+    login: loginMutation.mutateAsync,
+    logout: logoutMutation.mutateAsync,
+    register: registerMutation.mutateAsync,
     // Helper functions
     isAdmin: user?.role === 'admin',
     isSysAdmin: user?.role === 'sys_admin',

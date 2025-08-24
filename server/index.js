@@ -97,7 +97,7 @@ console.log("✅ Notification routes loaded.");
 
 // ROUTE: Quản lý hệ thống (chỉ dành cho sys_admin)
 console.log("Loading system routes...");
-app.use('/api/admin/system', systemRoutes);
+app.use('/api/system', systemRoutes);
 console.log("✅ System routes loaded.");
 // --- KẾT THÚC ĐĂNG KÝ ROUTES ---
 

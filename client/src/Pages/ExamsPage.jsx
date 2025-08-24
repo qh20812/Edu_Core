@@ -12,7 +12,7 @@ import {
   FaQuestionCircle,
 } from "react-icons/fa";
 import { useUI } from "../Hooks/useUI";
-import { useAuth } from "../Hooks/useAuth";
+import { useAuth } from "../Hooks/useAuthQueries";
 import { examService } from "../Services";
 import { TableLoadingSkeleton } from "../Components/UI/Loading";
 import Pagination from "../Components/UI/Pagination";

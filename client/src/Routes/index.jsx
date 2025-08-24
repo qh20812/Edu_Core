@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../Hooks/useAuth';
+import { useAuth } from '../Hooks/useAuthQueries';
 
 // Layouts
 import DashboardLayout from '../Components/Layouts/DashboardLayout';
@@ -85,15 +85,15 @@ class LazyLoadErrorBoundary extends React.Component {
 
 // Component bảo vệ các route yêu cầu đăng nhập
 const ProtectedRoute = ({ children }) => {
-  const { isLoggedIn } = useAuth();
-  return isLoggedIn ? children : <Navigate to="/login" replace />;
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 // Component cho các route public (VD: trang login, nếu đã đăng nhập thì redirect)
 const PublicRoute = ({ children, redirectToDashboard = true }) => {
-  const { isLoggedIn } = useAuth();
+  const { isAuthenticated } = useAuth();
   
-  if (isLoggedIn && redirectToDashboard) {
+  if (isAuthenticated && redirectToDashboard) {
     return <Navigate to="/dashboard/" replace />;
   }
   
@@ -102,9 +102,9 @@ const PublicRoute = ({ children, redirectToDashboard = true }) => {
 
 // Component cho các route yêu cầu quyền admin
 const AdminRoute = ({ children }) => {
-  const { user, isLoggedIn } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
@@ -117,9 +117,9 @@ const AdminRoute = ({ children }) => {
 
 // Component cho các route yêu cầu quyền giáo viên trở lên
 const TeacherRoute = ({ children }) => {
-  const { user, isLoggedIn } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
@@ -131,10 +131,10 @@ const TeacherRoute = ({ children }) => {
 };
 
 const AppRouter = () => {
-  const { loading } = useAuth();
+  const { isLoading } = useAuth();
 
   // Hiển thị màn hình chờ trong khi xác thực token
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-foreground">
         <div className="text-center">

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../../Hooks/useAuth";
+import { useAuth } from "../../Hooks/useAuthQueries";
 import { useUI } from "../../Hooks/useUI";
 import {
   FaGraduationCap,
@@ -12,11 +12,10 @@ import {
 import { FormField, PasswordField, RoleDropdown } from "../../Components/Forms";
 
 const RegisterPage = () => {
-  const { register: authRegister } = useAuth();
+  const { register: authRegister, isLoading } = useAuth();
   const { showSuccess, showError } = useUI();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedRole, setSelectedRole] = useState("student");
 
   const {
@@ -33,7 +32,6 @@ const RegisterPage = () => {
   const password = watch("password");
 
   const onSubmit = async (formData) => {
-    setIsSubmitting(true);
     try {
       // NOTE: Trong ứng dụng thực tế, tenant_id thường được xác định theo tên miền
       // hoặc một quy trình nghiệp vụ khác. Ở đây ta tạm gán cứng một giá trị.
@@ -45,18 +43,11 @@ const RegisterPage = () => {
         tenant_id: "66b1129622d05775f5a81812", // THAY THẾ BẰNG TENANT_ID HỢP LỆ CỦA BẠN
       };
 
-      const result = await authRegister(userData);
-
-      if (result.success) {
-        showSuccess(t("auth.registerSuccess") + ". Vui lòng đăng nhập.");
-        navigate("/login"); // Chuyển hướng đến trang đăng nhập sau khi đăng ký thành công
-      } else {
-        showError(result.message || t("auth.registerFailed"));
-      }
+      await authRegister(userData);
+      showSuccess(t("auth.registerSuccess") + ". Vui lòng đăng nhập.");
+      navigate("/login"); // Chuyển hướng đến trang đăng nhập sau khi đăng ký thành công
     } catch (error) {
       showError(error.message || t("auth.registerFailed"));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -144,10 +135,10 @@ const RegisterPage = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isLoading}
               className="flex items-center justify-center w-full px-6 py-4 text-lg font-semibold text-white transition-all duration-200 bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? (
+              {isLoading ? (
                 <>
                   <div className="w-6 h-6 mr-3 border-b-2 border-white rounded-full animate-spin"></div>
                   {t("common.loading")}...

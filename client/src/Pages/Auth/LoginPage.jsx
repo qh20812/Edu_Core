@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../../Hooks/useAuth";
+import { useAuth } from "../../Hooks/useAuthQueries";
 import { useUI } from "../../Hooks/useUI";
 import {
   FaGraduationCap,
@@ -13,13 +13,10 @@ import { FormField, PasswordField } from "../../Components/Forms";
 
 const LoginPage = () => {
   // Sử dụng các hook đã tạo
-  const { login } = useAuth();
+  const { login, isLoading } = useAuth();
   const { showSuccess, showError } = useUI();
   const navigate = useNavigate();
   const { t } = useTranslation();
-
-  // State để quản lý trạng thái loading của form
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sử dụng react-hook-form để quản lý form dễ dàng hơn
   const {
@@ -30,19 +27,18 @@ const LoginPage = () => {
 
   // Hàm xử lý khi submit form
   const onSubmit = async (formData) => {
-    setIsSubmitting(true);
+    console.log('🔐 Login attempt:', formData.email);
     try {
-      const result = await login(formData.email, formData.password);
-      if (result.success) {
-        showSuccess(t("auth.loginSuccess"));
-        navigate("/dashboard/"); // Chuyển hướng đến dashboard
-      } else {
-        showError(result.message || t("auth.invalidCredentials"));
-      }
+      await login({
+        email: formData.email,
+        password: formData.password
+      });
+      console.log('✅ Login successful');
+      showSuccess(t("auth.loginSuccess"));
+      navigate("/dashboard/");
     } catch (error) {
+      console.error('❌ Login error:', error);
       showError(error.message || t("auth.loginFailed"));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -97,10 +93,10 @@ const LoginPage = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isLoading}
               className="flex items-center justify-center w-full px-6 py-4 text-lg font-semibold text-white transition-all duration-200 bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? (
+              {isLoading ? (
                 <>
                   <div className="w-6 h-6 mr-3 border-b-2 border-white rounded-full animate-spin"></div>
                   {t("common.loading")}...

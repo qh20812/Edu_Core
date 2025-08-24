@@ -10,6 +10,7 @@ import {
   FaLightbulb,
   FaHandshake,
   FaGlobe,
+  FaArrowRight,
 } from "react-icons/fa";
 
 const AboutPage = () => {
@@ -202,10 +203,13 @@ const AboutPage = () => {
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <a
                 href="/register"
-                className="inline-flex items-center justify-center px-8 py-4 font-semibold text-blue-600 transition-colors duration-300 bg-white rounded-xl hover:bg-gray-100"
-              >
-                <FaRocket className="w-5 h-5 mr-2" />
-                Bắt đầu ngay
+                className="relative inline-flex items-center justify-center px-8 py-4 overflow-hidden text-lg font-semibold text-white transition-all duration-300 shadow-2xl bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl group hover:scale-105 hover:shadow-blue-500/25">
+                <span className="absolute w-0 h-0 transition-all duration-500 ease-out bg-blue-500 rounded-xl bg-opacity-20 group-hover:w-full group-hover:h-full"></span>
+                <span className="relative flex items-center">
+                  <FaRocket className="w-5 h-5 mr-2" />
+                  Bắt đầu
+                  <FaArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                </span>
               </a>
               <a
                 href="/contact"

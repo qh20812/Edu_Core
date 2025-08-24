@@ -7,6 +7,19 @@ import { apiClient } from './apiClient.service';
 
 export const systemService = {
   /**
+   * Lấy dashboard stats cho sys_admin
+   */
+  getDashboardStats: async () => {
+    try {
+      const response = await apiClient.get('/system/dashboard-stats');
+      return response;
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Lấy system analytics
    */
   getAnalytics: async () => {
@@ -71,6 +84,34 @@ export const systemService = {
       return response;
     } catch (error) {
       console.error('Error fetching system logs:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Lấy recent activity
+   */
+  getRecentActivity: async (filters = {}) => {
+    try {
+      const params = new URLSearchParams(filters).toString();
+      const endpoint = params ? `/system/recent-activity?${params}` : '/system/recent-activity';
+      const response = await apiClient.get(endpoint);
+      return response;
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Lấy tenant distribution by status
+   */
+  getTenantDistribution: async () => {
+    try {
+      const response = await apiClient.get('/system/tenants/distribution');
+      return response;
+    } catch (error) {
+      console.error('Error fetching tenant distribution:', error);
       throw error;
     }
   },

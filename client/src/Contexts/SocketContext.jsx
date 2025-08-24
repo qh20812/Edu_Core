@@ -1,21 +1,22 @@
 import React, { createContext, useEffect, useState, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
-import { useAuth } from '../Hooks/useAuth';
+import { useAuth } from '../Hooks/useAuthQueries';
 
 // Create Socket Context
 const SocketContext = createContext(null);
 
 export const SocketProvider = ({ children }) => {
-  const { user, token } = useAuth();
+  const { token } = useAuth(); // Chỉ listen token, không listen user object
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [notifications, setNotifications] = useState([]);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
-  const socketInstance = useRef(null); // Sử dụng ref để giữ instance của socket
+  const socketInstance = useRef(null);
+  const connectionTimeoutRef = useRef(null);
 
-  // --- Bọc hàm disconnect trong useCallback ---
+  // --- Disconnect socket function ---
   const disconnectSocket = useCallback(() => {
     if (socketInstance.current) {
       console.log('🔌 Disconnecting socket...');
@@ -27,128 +28,148 @@ export const SocketProvider = ({ children }) => {
     }
   }, []);
 
-  // --- Bọc hàm initialize trong useCallback, chỉ phụ thuộc vào token ---
+  // --- Initialize socket function ---
   const initializeSocket = useCallback(() => {
-    // Chỉ khởi tạo nếu có token và chưa có socket
-    if (token && !socketInstance.current) {
-        try {
-            console.log('🔌 Initializing socket connection...');
-            
-            const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
-            
-            const newSocket = io(socketUrl, {
-              auth: { token },
-              transports: ['websocket', 'polling'],
-              autoConnect: true,
-              reconnection: true,
-              reconnectionAttempts: maxReconnectAttempts,
-              reconnectionDelay: 1000,
-              reconnectionDelayMax: 5000,
-            });
+    // Clear any existing timeout
+    if (connectionTimeoutRef.current) {
+      clearTimeout(connectionTimeoutRef.current);
+    }
 
-            // Gán vào ref ngay lập tức
-            socketInstance.current = newSocket;
-            setSocket(newSocket);
+    // Only initialize if we have token and no existing socket
+    if (!token || socketInstance.current) {
+      return;
+    }
 
-            // ... (toàn bộ các hàm newSocket.on(...) giữ nguyên như cũ)
-            newSocket.on('connect', () => {
-              console.log('✅ Socket connected:', newSocket.id);
-              setIsConnected(true);
-              reconnectAttempts.current = 0;
-            });
+    try {
+      console.log('🔌 Initializing socket connection...');
       
-            newSocket.on('disconnect', (reason) => {
-              console.log('❌ Socket disconnected:', reason);
-              setIsConnected(false);
-            });
+      const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
       
-            newSocket.on('connect_error', (error) => {
-              console.error('🔥 Socket connection error:', error);
-              setIsConnected(false);
-              
-              reconnectAttempts.current += 1;
-              if (reconnectAttempts.current >= maxReconnectAttempts) {
-                console.error('Max reconnection attempts reached');
-                newSocket.disconnect();
-              }
-            });
+      const newSocket = io(socketUrl, {
+        auth: { token },
+        transports: ['websocket', 'polling'],
+        autoConnect: true,
+        reconnection: true,
+        reconnectionAttempts: maxReconnectAttempts,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+      });
 
-            newSocket.on('user-status-changed', ({ userId, status }) => {
-                setOnlineUsers(prev => {
-                  const newSet = new Set(prev);
-                  if (status === 'online') {
-                    newSet.add(userId);
-                  } else {
-                    newSet.delete(userId);
-                  }
-                  return newSet;
-                });
-              });
-        
-              newSocket.on('notification', (notification) => {
-                console.log('📬 New notification:', notification);
-                setNotifications(prev => [notification, ...prev]);
-                
-                if (Notification.permission === 'granted') {
-                  new Notification(notification.title || 'New Notification', {
-                    body: notification.message,
-                    icon: '/favicon.ico'
-                  });
-                }
-              });
-        
-              newSocket.on('system-announcement', (announcement) => {
-                console.log('📢 System announcement:', announcement);
-                setNotifications(prev => [{
-                  ...announcement,
-                  type: 'system',
-                  isSystemAnnouncement: true
-                }, ...prev]);
-              });
-        
-              newSocket.on('data-update', ({ type, data }) => {
-                console.log('🔄 Data update:', type, data);
-                window.dispatchEvent(new CustomEvent('data-update', {
-                  detail: { type, data }
-                }));
-              });
-        
-              newSocket.on('private-message', (message) => {
-                console.log('💬 Private message:', message);
-                window.dispatchEvent(new CustomEvent('private-message', {
-                  detail: message
-                }));
-              });
-        
-              newSocket.on('room-message', (message) => {
-                console.log('👥 Room message:', message);
-                window.dispatchEvent(new CustomEvent('room-message', {
-                  detail: message
-                }));
-              });
+      // Store in ref immediately
+      socketInstance.current = newSocket;
+      setSocket(newSocket);
 
-          } catch (error) {
-            console.error('Error initializing socket:', error);
+      // Socket event listeners
+      newSocket.on('connect', () => {
+        console.log('✅ Socket connected:', newSocket.id);
+        setIsConnected(true);
+        reconnectAttempts.current = 0;
+      });
+
+      newSocket.on('disconnect', (reason) => {
+        console.log('❌ Socket disconnected:', reason);
+        setIsConnected(false);
+      });
+
+      newSocket.on('connect_error', (error) => {
+        console.error('🔥 Socket connection error:', error);
+        setIsConnected(false);
+        
+        reconnectAttempts.current += 1;
+        if (reconnectAttempts.current >= maxReconnectAttempts) {
+          console.error('Max reconnection attempts reached');
+          newSocket.disconnect();
+        }
+      });
+
+      newSocket.on('user-status-changed', ({ userId, status }) => {
+        setOnlineUsers(prev => {
+          const newSet = new Set(prev);
+          if (status === 'online') {
+            newSet.add(userId);
+          } else {
+            newSet.delete(userId);
           }
+          return newSet;
+        });
+      });
+
+      newSocket.on('notification', (notification) => {
+        console.log('📬 New notification:', notification);
+        setNotifications(prev => [notification, ...prev]);
+        
+        if (Notification.permission === 'granted') {
+          new Notification(notification.title || 'New Notification', {
+            body: notification.message,
+            icon: '/favicon.ico'
+          });
+        }
+      });
+
+      newSocket.on('system-announcement', (announcement) => {
+        console.log('📢 System announcement:', announcement);
+        setNotifications(prev => [{
+          ...announcement,
+          type: 'system',
+          isSystemAnnouncement: true
+        }, ...prev]);
+      });
+
+      newSocket.on('data-update', ({ type, data }) => {
+        console.log('🔄 Data update:', type, data);
+        window.dispatchEvent(new CustomEvent('data-update', {
+          detail: { type, data }
+        }));
+      });
+
+      newSocket.on('private-message', (message) => {
+        console.log('💬 Private message:', message);
+        window.dispatchEvent(new CustomEvent('private-message', {
+          detail: message
+        }));
+      });
+
+      newSocket.on('room-message', (message) => {
+        console.log('👥 Room message:', message);
+        window.dispatchEvent(new CustomEvent('room-message', {
+          detail: message
+        }));
+      });
+
+    } catch (error) {
+      console.error('Error initializing socket:', error);
     }
   }, [token]);
 
-  // --- useEffect chính chỉ phụ thuộc vào user và các hàm đã được memoize ---
+  // --- Main useEffect - only depends on token ---
   useEffect(() => {
-    if (user && token) {
-      initializeSocket();
+    // Clear any existing timeout
+    if (connectionTimeoutRef.current) {
+      clearTimeout(connectionTimeoutRef.current);
+    }
+
+    if (token) {
+      // Debounce socket connection
+      connectionTimeoutRef.current = setTimeout(() => {
+        initializeSocket();
+      }, 200);
     } else {
+      // Immediately disconnect if no token
       disconnectSocket();
     }
 
-    // Hàm cleanup sẽ được gọi khi user thay đổi (đăng xuất)
+    // Cleanup on unmount or token change
     return () => {
-      disconnectSocket();
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+      }
+      if (!token) {
+        disconnectSocket();
+      }
     };
-  }, [user, token, initializeSocket, disconnectSocket]);
+  }, [token, initializeSocket, disconnectSocket]);
 
-  // ... (các hàm tiện ích khác giữ nguyên)
-
+  // Context value
   const contextValue = {
     socket,
     isConnected,

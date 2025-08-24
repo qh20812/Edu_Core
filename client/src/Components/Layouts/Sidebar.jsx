@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useUI } from '../../Hooks/useUI';
-import { useAuth } from '../../Hooks/useAuth';
+import { useAuth } from '../../Hooks/useAuthQueries';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 import {
@@ -30,7 +30,7 @@ import {
 
 const Sidebar = () => {
   const { isSidebarOpen} = useUI();
-  const { user, hasRole, logout } = useAuth();
+  const { user, hasAnyRole, logout } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -102,9 +102,18 @@ const Sidebar = () => {
         : 'hover:bg-gray-50 dark:hover:bg-gray-800'
     );
   };
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback logout nếu API fail
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('tenant');
+      navigate('/login');
+    }
   };
 
   return (
@@ -164,7 +173,7 @@ const Sidebar = () => {
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) =>
-          hasRole(item.roles) && (
+          hasAnyRole(item.roles) && (
             <NavLink to={item.path} key={item.path} className={getNavLinkClass(item.path)}>
               <div className="flex items-center w-full">
                 <span className="flex-shrink-0 text-lg transition-transform duration-200 group-hover:scale-110">

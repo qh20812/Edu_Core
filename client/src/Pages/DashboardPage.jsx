@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../Hooks/useAuth';
+import { useAuth } from '../Hooks/useAuthQueries';
 
 // Import các trang dashboard cụ thể cho từng vai trò
 import SystemDashboardPage from './Admin/System/SystemDashboardPage';

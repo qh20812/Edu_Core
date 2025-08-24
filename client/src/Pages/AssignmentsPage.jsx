@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaPlus, FaSearch, FaCalendarAlt, FaBook, FaClock, FaEdit, FaTrash, FaEye, FaClipboardList } from 'react-icons/fa';
 import { useUI } from '../Hooks/useUI';
-import { useAuth } from '../Hooks/useAuth';
+import { useAuth } from '../Hooks/useAuthQueries';
 import { assignmentService } from '../Services';
 import { TableLoadingSkeleton } from '../Components/UI/Loading';
 import Pagination from '../Components/UI/Pagination';

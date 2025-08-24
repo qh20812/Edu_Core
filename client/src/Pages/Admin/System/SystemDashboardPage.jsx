@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaSchool, FaClipboardList, FaUsers, FaServer, FaChartBar, FaCog } from 'react-icons/fa';
 import { useUI } from '../../../Hooks/useUI';
-// import { tenantService, userService } from '../../../Services';
+import { systemService } from '../../../Services/system.service';
 
 // Component card thống kê mẫu
-const StatCard = ({ title, value, icon, color = 'primary', loading = false }) => (
+const StatCard = ({ title, value, icon, color = 'blue-600', loading = false }) => (
   <div className="p-6 transition-shadow bg-white rounded-lg shadow-md dark:bg-slate-800 hover:shadow-lg">
     <div className="flex items-center justify-between">
       <div>
@@ -30,29 +30,53 @@ const SystemDashboardPage = () => {
     totalTenants: 0,
     totalUsers: 0,
     systemLogs: 0,
-    serverStatus: 'Online'
+    serverStatus: 'Đang kiểm tra...',
+    recentTenants: [],
+    systemHealth: []
   });
 
   const fetchSystemStats = async () => {
     setLoading(true);
     try {
-      // Gọi API để lấy thống kê hệ thống
-      // const tenantStats = await tenantService.getTenantStatistics();
-      // const userStats = await userService.getAllUsers('?count=true');
+      // Lấy dashboard stats từ API thật
+      const dashboardResponse = await systemService.getDashboardStats();
+      const healthResponse = await systemService.getHealth();
       
-      // Temporary mock data - thay thế bằng real API calls
-      setTimeout(() => {
-        setStats({
-          totalTenants: 12,
-          totalUsers: 1482,
-          systemLogs: 5231,
-          serverStatus: 'Online'
-        });
-        setLoading(false);
-      }, 1000);
+      // Xử lý dữ liệu từ API
+      const dashboardData = dashboardResponse.data;
+      const healthData = healthResponse.data;
+      
+      setStats({
+        totalTenants: dashboardData.totalTenants || 0,
+        totalUsers: dashboardData.totalUsers || 0,
+        systemLogs: dashboardData.systemLogs || 0,
+        serverStatus: healthData.status === 'healthy' ? 'Online' : 'Warning',
+        recentTenants: dashboardData.recentTenants || [],
+        systemHealth: healthData.services || [
+          { service: 'Database', status: 'healthy', uptime: '99.9%' },
+          { service: 'API Server', status: 'healthy', uptime: '99.8%' },
+          { service: 'File Storage', status: 'healthy', uptime: '99.7%' },
+          { service: 'Email Service', status: 'warning', uptime: '98.5%' }
+        ]
+      });
       
     } catch (error) {
+      console.error('Error fetching system stats:', error);
       showError('Không thể tải thống kê hệ thống: ' + error.message);
+      
+      // Fallback to mock data if API fails
+      setStats({
+        totalTenants: 0,
+        totalUsers: 0,
+        systemLogs: 0,
+        serverStatus: 'Offline',
+        recentTenants: [],
+        systemHealth: [
+          { service: 'Database', status: 'error', uptime: '0%' },
+          { service: 'API Server', status: 'error', uptime: '0%' }
+        ]
+      });
+    } finally {
       setLoading(false);
     }
   };
@@ -95,28 +119,28 @@ const SystemDashboardPage = () => {
           title="Tổng số trường học" 
           value={stats.totalTenants} 
           icon={<FaSchool size={24} />} 
-          color="primary"
+          color="blue-600"
           loading={isLoading}
         />
         <StatCard 
           title="Tổng số người dùng" 
           value={stats.totalUsers.toLocaleString()} 
           icon={<FaUsers size={24} />} 
-          color="accent"
+          color="purple-600"
           loading={isLoading}
         />
         <StatCard 
           title="Logs hệ thống (24h)" 
           value={stats.systemLogs.toLocaleString()} 
           icon={<FaClipboardList size={24} />} 
-          color="warning"
+          color="orange-600"
           loading={isLoading}
         />
         <StatCard 
           title="Trạng thái server"
           value={stats.serverStatus} 
           icon={<FaServer size={24} />} 
-          color="success"
+          color={stats.serverStatus === 'Online' ? 'green-500' : stats.serverStatus === 'Warning' ? 'yellow-500' : 'red-500'}
           loading={isLoading}
         />
       </div>
@@ -128,26 +152,42 @@ const SystemDashboardPage = () => {
             Trường học gần đây
           </h2>
           <div className="space-y-3">
-            {/* Mock data - thay thế bằng real data */}
-            {[
-              { name: 'THPT Nguyễn Huệ', status: 'active', users: 245 },
-              { name: 'THCS Lê Lợi', status: 'active', users: 189 },
-              { name: 'TH Trần Hưng Đạo', status: 'pending', users: 67 }
-            ].map((school, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded bg-gray-50 dark:bg-slate-700">
-                <div>
-                  <p className="font-medium text-foreground">{school.name}</p>
-                  <p className="text-sm text-gray-500">{school.users} người dùng</p>
+            {/* Hiển thị dữ liệu thật từ API */}
+            {isLoading ? (
+              // Loading skeleton
+              [...Array(3)].map((_, index) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded bg-gray-50 dark:bg-slate-700 animate-pulse">
+                  <div>
+                    <div className="w-32 h-4 mb-2 bg-gray-200 rounded dark:bg-gray-600"></div>
+                    <div className="w-20 h-3 bg-gray-200 rounded dark:bg-gray-600"></div>
+                  </div>
+                  <div className="w-16 h-6 bg-gray-200 rounded dark:bg-gray-600"></div>
                 </div>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  school.status === 'active' 
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                }`}>
-                  {school.status === 'active' ? 'Hoạt động' : 'Chờ duyệt'}
-                </span>
+              ))
+            ) : stats.recentTenants.length > 0 ? (
+              stats.recentTenants.map((school, index) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded bg-gray-50 dark:bg-slate-700">
+                  <div>
+                    <p className="font-medium text-foreground">{school.name}</p>
+                    <p className="text-sm text-gray-500">{school.totalUsers || 0} người dùng</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    school.status === 'active' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : school.status === 'pending'
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  }`}>
+                    {school.status === 'active' ? 'Hoạt động' : 
+                     school.status === 'pending' ? 'Chờ duyệt' : 'Ngưng hoạt động'}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-gray-500 dark:text-gray-400">
+                Không có dữ liệu trường học
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -157,24 +197,34 @@ const SystemDashboardPage = () => {
             Tình trạng hệ thống
           </h2>
           <div className="space-y-4">
-            {[
-              { service: 'Database', status: 'healthy', uptime: '99.9%' },
-              { service: 'API Server', status: 'healthy', uptime: '99.8%' },
-              { service: 'File Storage', status: 'healthy', uptime: '99.7%' },
-              { service: 'Email Service', status: 'warning', uptime: '98.5%' }
-            ].map((service, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    service.status === 'healthy' 
-                      ? 'bg-green-500' 
-                      : 'bg-yellow-500'
-                  }`}></div>
-                  <span className="text-foreground">{service.service}</span>
+            {isLoading ? (
+              // Loading skeleton for system health
+              [...Array(4)].map((_, index) => (
+                <div key={index} className="flex items-center justify-between animate-pulse">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-gray-300 rounded-full dark:bg-gray-600"></div>
+                    <div className="w-24 h-4 bg-gray-200 rounded dark:bg-gray-600"></div>
+                  </div>
+                  <div className="w-12 h-3 bg-gray-200 rounded dark:bg-gray-600"></div>
                 </div>
-                <span className="text-sm text-gray-500">{service.uptime}</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              stats.systemHealth.map((service, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      service.status === 'healthy' || service.status === 'online'
+                        ? 'bg-green-500' 
+                        : service.status === 'warning'
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
+                    }`}></div>
+                    <span className="text-foreground">{service.service}</span>
+                  </div>
+                  <span className="text-sm text-gray-500">{service.uptime}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
