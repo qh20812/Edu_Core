@@ -274,7 +274,8 @@ class TenantService {
       const tenant = await Tenant.findByIdAndUpdate(
         tenantId,
         { 
-          status: 'active',
+          status: 'approved',
+          subscription_status: 'active', // Also activate subscription
           approved_at: new Date()
         },
         { new: true }

@@ -8,12 +8,12 @@ export const tenantService = {
 
   // Đăng ký tenant mới (trường học mới) với thông tin plan
   registerTenant: (tenantData) => {
-    return apiClient.post('/tenants/register', tenantData);
+    return apiClient.post('/tenant/register', tenantData);
   },
 
   // Đăng ký tenant với plan từ pricing page
   registerTenantWithPlan: (tenantInfo, adminInfo, planInfo) => {
-    return apiClient.post('/tenants/register', {
+    return apiClient.post('/tenant/register', {
       tenantInfo,
       adminInfo,
       planInfo

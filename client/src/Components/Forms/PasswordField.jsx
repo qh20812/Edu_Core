@@ -16,8 +16,12 @@ const PasswordField = ({
 
   const passwordValidation = {
     minLength: {
-      value: 6,
-      message: 'Mật khẩu phải có ít nhất 6 ký tự',
+      value: 8,
+      message: 'Mật khẩu phải có ít nhất 8 ký tự',
+    },
+    pattern: {
+      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      message: 'Mật khẩu phải chứa ít nhất: 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt'
     },
     ...validation,
   };
@@ -48,7 +52,7 @@ const PasswordField = ({
         placeholder={placeholder}
       />
       <FaLock className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-      <button
+      <button tabIndex={-1}
         type="button"
         onClick={() => setShowPassword(!showPassword)}
         className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"

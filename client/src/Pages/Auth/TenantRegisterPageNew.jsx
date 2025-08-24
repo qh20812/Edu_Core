@@ -94,26 +94,26 @@ const TenantRegisterPage = () => {
       // Prepare data in the format expected by backend
       const tenantInfo = {
         name: data.schoolName,
-        school_code: data.schoolCode,
+        school_code: data.schoolCode || undefined, // Don't send empty string
         school_type: data.schoolType || selectedSchoolType,
         address: data.address,
         city: data.city,
         province: data.province,
-        postal_code: data.postalCode,
+        postal_code: data.postalCode || undefined,
         contact_email: data.email,
         contact_phone: data.phone,
-        website: data.website,
-        established_year: data.establishedYear,
-        total_students: data.totalStudents,
-        total_teachers: data.totalTeachers,
-        description: data.description,
+        website: data.website || undefined,
+        established_year: data.establishedYear ? parseInt(data.establishedYear) : undefined,
+        total_students: data.totalStudents ? parseInt(data.totalStudents) : undefined,
+        total_teachers: data.totalTeachers ? parseInt(data.totalTeachers) : undefined,
+        description: data.description || undefined,
       };
 
       const adminInfo = {
         email: data.adminEmail,
         password: data.password,
         full_name: data.adminFullName,
-        phone: data.adminPhone,
+        phone: data.adminPhone || undefined,
         position: data.adminPosition,
       };
 
@@ -141,7 +141,7 @@ const TenantRegisterPage = () => {
           // Here you could redirect to payment page with tenant ID
           navigate("/tenant-registration-success", { 
             state: { 
-              tenantId: response.data.tenantId,
+              tenantId: response.data?.tenantId,
               planInfo: selectedPlan 
             }
           });
@@ -149,11 +149,25 @@ const TenantRegisterPage = () => {
           navigate("/tenant-registration-success");
         }
       } else {
-        showError(response.message || "Đăng ký thất bại");
+        // Handle test server response format
+        if (response.errors) {
+          const errorMessages = response.errors.map(err => err.msg).join(', ');
+          showError("Lỗi validation: " + errorMessages);
+        } else {
+          showError(response.message || "Đăng ký thất bại");
+        }
       }
     } catch (error) {
       console.error("Registration error:", error);
-      showError("Đăng ký thất bại: " + (error.response?.data?.message || error.message));
+      
+      // Log detailed error for debugging
+      if (error.response?.data?.errors) {
+        console.error("Validation errors:", error.response.data.errors);
+        const errorMessages = error.response.data.errors.map(err => err.msg).join(', ');
+        showError("Lỗi validation: " + errorMessages);
+      } else {
+        showError("Đăng ký thất bại: " + (error.response?.data?.message || error.message));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -243,11 +257,19 @@ const TenantRegisterPage = () => {
               {/* School Code */}
               <FormField
                 name="schoolCode"
-                label="Mã trường"
+                label="Mã trường (tùy chọn)"
                 icon={FaSchool}
-                placeholder="Ví dụ: NH001"
+                placeholder="Ví dụ: NH001 (chỉ chữ hoa và số)"
                 register={register}
                 error={errors.schoolCode}
+                validation={{
+                  validate: (value) => {
+                    if (!value || value === '') return true; // Allow empty
+                    if (value.length < 3) return "Mã trường phải có ít nhất 3 ký tự";
+                    if (!/^[A-Z0-9]+$/.test(value)) return "Mã trường chỉ được chứa chữ cái viết hoa và số";
+                    return true;
+                  }
+                }}
               />
 
               {/* Address */}
@@ -291,13 +313,13 @@ const TenantRegisterPage = () => {
                 type="tel"
                 required
                 icon={FaPhone}
-                placeholder="0123 456 789"
+                placeholder="0123 456 789 hoặc +84 123 456 789"
                 register={register}
                 error={errors.phone}
                 validation={{
                   pattern: {
-                    value: /^[0-9\s\-+()]+$/,
-                    message: "Số điện thoại không hợp lệ",
+                    value: /^(\+84|84|0)[3|5|7|8|9][0-9]{8}$/,
+                    message: "Số điện thoại không hợp lệ (định dạng Việt Nam)",
                   },
                 }}
               />
@@ -324,6 +346,16 @@ const TenantRegisterPage = () => {
 
           {/* Administrator Information */}
           <FormSection title="Thông tin người quản trị" icon={FaUser}>
+            <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <h4 className="font-semibold text-yellow-800 mb-2">Lưu ý về mật khẩu:</h4>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>• Tối thiểu 8 ký tự</li>
+                <li>• Phải có ít nhất 1 chữ thường (a-z)</li>
+                <li>• Phải có ít nhất 1 chữ hoa (A-Z)</li>
+                <li>• Phải có ít nhất 1 số (0-9)</li>
+                <li>• Phải có ít nhất 1 ký tự đặc biệt (@$!%*?&)</li>
+              </ul>
+            </div>
             
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Admin Full Name */}
@@ -368,13 +400,13 @@ const TenantRegisterPage = () => {
                 type="tel"
                 required
                 icon={FaPhone}
-                placeholder="0987 654 321"
+                placeholder="0987 654 321 hoặc +84 987 654 321"
                 register={register}
                 error={errors.adminPhone}
                 validation={{
                   pattern: {
-                    value: /^[0-9\s\-+()]+$/,
-                    message: "Số điện thoại không hợp lệ",
+                    value: /^(\+84|84|0)[3|5|7|8|9][0-9]{8}$/,
+                    message: "Số điện thoại không hợp lệ (định dạng Việt Nam)",
                   },
                 }}
               />
@@ -394,7 +426,7 @@ const TenantRegisterPage = () => {
               <PasswordField
                 name="password"
                 label="Mật khẩu"
-                placeholder="Tối thiểu 6 ký tự"
+                placeholder="Tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
                 register={register}
                 error={errors.password}
               />

@@ -136,7 +136,11 @@ const TenantManagementPage = () => {
     {
       header: t("tenantManagement.status"),
       accessor: "status",
-      cell: (tenant) => <StatusBadge status={tenant.status} translate={true} />
+      cell: (tenant) => (
+        <div className="flex items-center">
+          <StatusBadge status={tenant.status} translate={true} size="sm" />
+        </div>
+      )
     },
     {
       header: t("tenantManagement.registrationDate"),
@@ -153,26 +157,31 @@ const TenantManagementPage = () => {
       header: t("tenantManagement.actions"),
       accessor: "actions",
       cell: (tenant) => (
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2">
+          {/* View Details Button */}
           <button
             onClick={() => {
               setSelectedTenant(tenant);
               setShowModal(true);
             }}
-            className="p-2 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-150"
+            className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 transition-colors duration-150"
             title={t("tenantManagement.viewDetails")}
           >
-            <FaEye />
+            <FaEye className="mr-1" />
+            {t("tenantManagement.viewDetails")}
           </button>
+
+          {/* Conditional Action Buttons for Pending Tenants */}
           {tenant.status === "pending" && (
             <>
               <button
                 onClick={() => handleApprove(tenant._id)}
                 disabled={approveMutation.isPending}
-                className="p-2 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 disabled:opacity-50 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-150"
+                className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
                 title={t("tenantManagement.approve")}
               >
-                <FaCheck />
+                <FaCheck className="mr-1" />
+                {approveMutation.isPending ? t("tenantManagement.approving") : t("tenantManagement.approve")}
               </button>
               <button
                 onClick={() => {
@@ -180,12 +189,22 @@ const TenantManagementPage = () => {
                   if (reason) handleReject(tenant._id, reason);
                 }}
                 disabled={rejectMutation.isPending}
-                className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-150"
+                className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
                 title={t("tenantManagement.reject")}
               >
-                <FaTimes />
+                <FaTimes className="mr-1" />
+                {rejectMutation.isPending ? t("tenantManagement.rejecting") : t("tenantManagement.reject")}
               </button>
             </>
+          )}
+
+          {/* Status indicator for non-pending tenants */}
+          {tenant.status !== "pending" && (
+            <span className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-lg dark:bg-gray-700 dark:text-gray-300">
+              {tenant.status === "active" && t("tenantManagement.approved")}
+              {tenant.status === "rejected" && t("tenantManagement.rejected")}
+              {tenant.status === "suspended" && t("tenantManagement.suspended")}
+            </span>
           )}
         </div>
       )

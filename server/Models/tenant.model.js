@@ -34,6 +34,16 @@ const tenantSchema = new Schema(
     description: { type: String, required: false, trim: true },
     is_active: { type: Boolean, default: true },
     
+    // Approval Status - For system admin approval workflow
+    status: { 
+      type: String, 
+      enum: ['pending', 'approved', 'rejected', 'suspended'], 
+      default: 'pending' 
+    },
+    approved_at: { type: Date },
+    rejected_at: { type: Date },
+    rejection_reason: { type: String },
+    
     // Subscription and Plan Information
     plan: { 
       type: String, 

@@ -62,13 +62,14 @@ class TransactionManager {
       const hashedPassword = await bcrypt.hash(adminData.password, 10);
       
       const adminUser = new User({
-        ...adminData,
-        password: hashedPassword,
+        email: adminData.email,
+        password_hash: hashedPassword, // Sửa từ password thành password_hash
+        full_name: adminData.full_name,
+        phone: adminData.phone,
+        position: adminData.position,
         role: 'school_admin',
         tenant_id: savedTenant._id,
-        is_active: true,
-        created_at: new Date(),
-        updated_at: new Date()
+        status: 'active'
       });
 
       const savedAdmin = await adminUser.save({ session });

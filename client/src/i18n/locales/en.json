@@ -153,6 +153,7 @@
       "loadingData": "Loading data...",
       "noDataAvailable": "No data available"
     },
+    "loading": "Loading...",
     "dashboardHeader": {
       "defaultActions": {
         "refresh": "Refresh",
@@ -272,7 +273,7 @@
   "tenantManagement": {
     "title": "School Management",
     "subtitle": "Approve and manage schools in the system",
-    "totalSchools": "Total Schools",
+    "total": "Total Schools",
     "pendingApproval": "Pending Approval",
     "activeSchools": "Active",
     "rejectedSchools": "Rejected",
@@ -307,6 +308,7 @@
     "rejectReason": "Rejection reason:",
     "approving": "Approving...",
     "rejecting": "Rejecting...",
+    "approved": "Approved",
     "loadError": "Data loading error",
     "loadErrorMessage": "Unable to load school list",
     "retry": "Retry",

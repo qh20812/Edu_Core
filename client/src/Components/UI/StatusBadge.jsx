@@ -37,14 +37,17 @@ const StatusBadge = ({
   // Get translated text for status
   const getDisplayText = () => {
     if (children) return children;
+    if (!status) return 'N/A';
     if (!translate) return status;
     
     // Try to get translation from ui.statusBadge first, fallback to original status
     const translationKey = `ui.statusBadge.${status?.toLowerCase()}`;
     const translated = t(translationKey);
     
-    // If translation key doesn't exist, return original status
-    return translated === translationKey ? status : translated;
+    // If translation key doesn't exist, return original status with proper formatting
+    return translated === translationKey ? 
+      (status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()) : 
+      translated;
   };
 
   const variantStyles = {

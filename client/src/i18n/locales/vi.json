@@ -147,6 +147,7 @@
       "loadingData": "Đang tải dữ liệu...",
       "noDataAvailable": "Không có dữ liệu"
     },
+    "loading": "Đang tải...",
     "dashboardHeader": {
       "defaultActions": {
         "refresh": "Làm mới",
@@ -266,7 +267,7 @@
   "tenantManagement": {
     "title": "Quản lý trường học",
     "subtitle": "Duyệt và quản lý các trường học trong hệ thống",
-    "totalSchools": "Tổng số trường",
+    "total": "Tổng số trường",
     "pendingApproval": "Chờ duyệt",
     "activeSchools": "Hoạt động",
     "rejectedSchools": "Từ chối",
@@ -301,6 +302,7 @@
     "rejectReason": "Lý do từ chối:",
     "approving": "Đang phê duyệt...",
     "rejecting": "Đang từ chối...",
+    "approved": "Đã duyệt",
     "loadError": "Lỗi tải dữ liệu",
     "loadErrorMessage": "Không thể tải danh sách trường học",
     "retry": "Thử lại",

@@ -71,6 +71,12 @@ const request = async (endpoint, method, body = null) => {
   } catch (error) {
     console.error(`API Error on ${method} ${endpoint}:`, error);
     
+    // Log detailed response for debugging
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
+    
     // Re-throw error để React Query có thể handle
     throw error;
   }

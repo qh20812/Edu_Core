@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 
 const DataTable = ({ 
@@ -9,6 +10,8 @@ const DataTable = ({
   emptyIcon: EmptyIcon,
   className 
 }) => {
+  const { t } = useTranslation();
+
   if (loading) {
     return (
       <div className={cn(
@@ -17,7 +20,7 @@ const DataTable = ({
       )}>
         <div className="p-8 text-center">
           <div className="w-8 h-8 mx-auto mb-4 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
-          <p className="text-gray-600 dark:text-gray-400">Đang tải...</p>
+          <p className="text-gray-600 dark:text-gray-400">{t('ui.loading', 'Đang tải...')}</p>
         </div>
       </div>
     );
