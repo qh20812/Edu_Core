@@ -40,7 +40,7 @@ const RegisterPage = () => {
         email: formData.email,
         password: formData.password,
         role: selectedRole,
-        tenant_id: "66b1129622d05775f5a81812", // THAY THẾ BẰNG TENANT_ID HỢP LỆ CỦA BẠN
+        tenant_id: "689d90cd06ffa3db89be9981", // ID của tenant "Trường THPT Chu Văn An"
       };
 
       await authRegister(userData);

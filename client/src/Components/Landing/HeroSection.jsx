@@ -12,7 +12,7 @@ const HeroSection = () => {
   return (
     <section className="relative flex items-center min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[url('./assets/images/grid-pattern.svg')] opacity-10"></div>
+      <div className="absolute inset-0 bg-[url('./assets/Images/grid-pattern.svg')] opacity-10"></div>
       <div className="absolute bg-blue-500 rounded-full -top-24 -right-24 w-96 h-96 filter blur-3xl opacity-20"></div>
       <div className="absolute bg-indigo-500 rounded-full -bottom-24 -left-24 w-96 h-96 filter blur-3xl opacity-20"></div>
 

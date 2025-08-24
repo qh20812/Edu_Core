@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../lib/utils';
+import { cn } from '../../Lib/utils';
 
 const DataTable = ({ 
   columns, 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { cn } from '../../lib/utils';
+import { cn } from '../../Lib/utils';
 
 const Modal = ({ 
   isOpen, 

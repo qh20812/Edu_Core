@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useUI } from '../../Hooks/useUI';
 import { useAuth } from '../../Hooks/useAuthQueries';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../lib/utils';
+import { cn } from '../../Lib/utils';
 import {
   FaHome,
   FaUsers,
