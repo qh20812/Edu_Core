@@ -86,7 +86,7 @@ const HeroSection = () => {
 
           {/* Hero Image */}
           <div className="relative hidden lg:block">
-            <div className="relative z-10 p-6 transition-transform duration-300 transform bg-white shadow-2xl dark:bg-gray-800 rounded-2xl hover:scale-105">
+            <div className="relative z-10 p-6 transition-transform duration-300 transform bg-white shadow-2xl rounded-2xl hover:scale-105">
               <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl">
                 <div className="mb-6 text-center">
                   <FaGraduationCap className="w-16 h-16 mx-auto mb-4 text-blue-600" />

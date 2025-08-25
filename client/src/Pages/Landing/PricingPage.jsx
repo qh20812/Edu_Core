@@ -88,7 +88,7 @@ const PricingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="light min-h-screen bg-white">
       <LandingHeader />
       
       <main className="pt-16">

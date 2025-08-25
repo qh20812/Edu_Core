@@ -52,24 +52,24 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950 dark:via-indigo-950 dark:to-purple-950">
+    <div className="light flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="mb-10 text-center">
           <Link
             to="/"
-            className="inline-flex items-center mb-3 text-3xl font-bold text-gray-900 transition-colors dark:text-gray-100 group hover:text-blue-600 dark:hover:text-blue-400"
+            className="inline-flex items-center mb-3 text-3xl font-bold text-gray-900 transition-colors group hover:text-blue-600"
           >
             <FaGraduationCap className="w-10 h-10 mr-3 text-blue-600 transition-transform group-hover:scale-110" />
             EduCore
           </Link>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-gray-600">
             {t("auth.register")}
           </p>
         </div>
 
         {/* Register Form */}
-        <div className="p-10 bg-white border border-gray-100 shadow-xl dark:bg-gray-800 rounded-2xl dark:border-gray-700">
+        <div className="p-10 bg-white border border-gray-100 shadow-xl rounded-2xl">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             {/* Full Name */}
             <FormField
@@ -151,7 +151,7 @@ const RegisterPage = () => {
 
           {/* Footer */}
           <div className="mt-8 space-y-3 text-center">
-            <p className="text-base text-gray-600 dark:text-gray-400">
+            <p className="text-base text-gray-600">
               Đã có tài khoản?{" "}
               <Link
                 to="/login"
@@ -165,7 +165,7 @@ const RegisterPage = () => {
               onClick={() => {
                 navigate("/", { replace: true });
               }}
-              className="inline-flex items-center text-base text-gray-600 transition-colors dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 bg-transparent border-none cursor-pointer p-0"
+              className="inline-flex items-center text-base text-gray-600 transition-colors hover:text-blue-600 bg-transparent border-none cursor-pointer p-0"
             >
               ← Quay lại trang chủ
             </button>

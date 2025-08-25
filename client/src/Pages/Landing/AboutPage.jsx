@@ -67,7 +67,7 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="light min-h-screen bg-white">
       <LandingHeader />
       
       <div className="pt-16">

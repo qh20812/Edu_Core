@@ -174,8 +174,8 @@ const TenantRegisterPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="w-full max-w-4xl overflow-hidden bg-white border border-gray-200 shadow-2xl dark:bg-slate-800 rounded-2xl dark:border-slate-700">
+    <div className="light flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="w-full max-w-4xl overflow-hidden bg-white border border-gray-200 shadow-2xl rounded-2xl">
         {/* Header */}
         <div className="p-8 text-white bg-gradient-to-r from-blue-600 to-purple-600">
           <div className="flex items-center justify-center mb-4">
@@ -467,7 +467,7 @@ const TenantRegisterPage = () => {
             </button>
             <Link
               to="/login"
-              className="flex-1 px-6 py-3 font-medium text-center text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600"
+              className="flex-1 px-6 py-3 font-medium text-center text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Quay lại đăng nhập
             </Link>
@@ -477,8 +477,8 @@ const TenantRegisterPage = () => {
           <ProcessInfo />
 
           {/* Login Link */}
-          <div className="pt-6 text-center border-t border-gray-200 dark:border-slate-700">
-            <p className="text-gray-600 dark:text-gray-400">
+          <div className="pt-6 text-center border-t border-gray-200">
+            <p className="text-gray-600">
               Đã có tài khoản?{" "}
               <Link
                 to="/login"

@@ -8,7 +8,7 @@ import StatsSection from "../../Components/Landing/StatsSection";
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="light min-h-screen bg-white">
       <LandingHeader />
       
       <main className="pt-16"> {/* Add padding-top to account for fixed header */}

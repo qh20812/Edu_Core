@@ -10,8 +10,8 @@ import {
 
 const TenantRegistrationSuccessPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+    <div className="light min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 to-blue-600 p-8 text-white text-center">
           <div className="flex items-center justify-center mb-4">
@@ -30,14 +30,14 @@ const TenantRegistrationSuccessPage = () => {
         {/* Content */}
         <div className="p-8 space-y-6">
           {/* Success Message */}
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
             <div className="flex items-start space-x-3">
               <FaCheckCircle className="text-green-600 text-xl mt-1 flex-shrink-0" />
               <div>
-                <h2 className="font-semibold text-green-900 dark:text-green-100 mb-2">
+                <h2 className="font-semibold text-green-900 mb-2">
                   Yêu cầu đã được tiếp nhận
                 </h2>
-                <p className="text-green-800 dark:text-green-200 text-sm">
+                <p className="text-green-800 text-sm">
                   Cảm ơn bạn đã quan tâm đến hệ thống quản lý giáo dục EduCore. 
                   Thông tin đăng ký của trường học đã được gửi đến bộ phận quản trị hệ thống.
                 </p>
@@ -46,8 +46,8 @@ const TenantRegistrationSuccessPage = () => {
           </div>
 
           {/* Next Steps */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 className="font-semibold text-blue-900 mb-4 flex items-center">
               <FaClock className="mr-2" />
               Các bước tiếp theo
             </h3>
@@ -57,10 +57,10 @@ const TenantRegistrationSuccessPage = () => {
                   1
                 </div>
                 <div>
-                  <p className="font-medium text-blue-900 dark:text-blue-100">
+                  <p className="font-medium text-blue-900">
                     Xem xét và đánh giá
                   </p>
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="text-sm text-blue-800">
                     Bộ phận quản trị sẽ xem xét thông tin và đánh giá yêu cầu của bạn
                   </p>
                 </div>
@@ -71,10 +71,10 @@ const TenantRegistrationSuccessPage = () => {
                   2
                 </div>
                 <div>
-                  <p className="font-medium text-blue-900 dark:text-blue-100">
+                  <p className="font-medium text-blue-900">
                     Thông báo kết quả
                   </p>
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="text-sm text-blue-800">
                     Bạn sẽ nhận được email thông báo kết quả trong vòng 1-3 ngày làm việc
                   </p>
                 </div>
@@ -85,10 +85,10 @@ const TenantRegistrationSuccessPage = () => {
                   3
                 </div>
                 <div>
-                  <p className="font-medium text-blue-900 dark:text-blue-100">
+                  <p className="font-medium text-blue-900">
                     Kích hoạt tài khoản
                   </p>
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="text-sm text-blue-800">
                     Sau khi được duyệt, tài khoản sẽ được kích hoạt và bạn có thể đăng nhập
                   </p>
                 </div>
@@ -97,12 +97,12 @@ const TenantRegistrationSuccessPage = () => {
           </div>
 
           {/* Important Information */}
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-3 flex items-center">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h3 className="font-semibold text-yellow-900 mb-3 flex items-center">
               <FaEnvelope className="mr-2" />
               Thông tin quan trọng
             </h3>
-            <ul className="space-y-2 text-sm text-yellow-800 dark:text-yellow-200">
+            <ul className="space-y-2 text-sm text-yellow-800">
               <li className="flex items-start">
                 <div className="w-2 h-2 bg-yellow-600 rounded-full mr-3 mt-2 flex-shrink-0"></div>
                 <span>Vui lòng kiểm tra email (bao gồm cả thư mục spam) để nhận thông báo</span>
@@ -119,18 +119,18 @@ const TenantRegistrationSuccessPage = () => {
           </div>
 
           {/* Contact Support */}
-          <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-6">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="font-semibold text-gray-900 mb-3">
               Cần hỗ trợ?
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-3">
                 <FaEnvelope className="text-blue-600 text-lg" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <p className="text-sm font-medium text-gray-900">
                     Email hỗ trợ
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600">
                     support@educore.vn
                   </p>
                 </div>
@@ -138,10 +138,10 @@ const TenantRegistrationSuccessPage = () => {
               <div className="flex items-center space-x-3">
                 <FaPhoneAlt className="text-green-600 text-lg" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <p className="text-sm font-medium text-gray-900">
                     Hotline
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600">
                     1900 1234
                   </p>
                 </div>
@@ -160,14 +160,14 @@ const TenantRegistrationSuccessPage = () => {
             </Link>
             <Link
               to="/login"
-              className="flex-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 font-medium py-3 px-6 rounded-lg transition-all duration-200 text-center"
+              className="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-3 px-6 rounded-lg transition-all duration-200 text-center"
             >
               Đăng nhập (sau khi được duyệt)
             </Link>
           </div>
 
           {/* Timeline Reminder */}
-          <div className="text-center text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-slate-700">
+          <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-200">
             <p>
               <strong>Lưu ý:</strong> Thời gian xử lý có thể thay đổi tùy thuộc vào khối lượng công việc.
               Chúng tôi sẽ cố gắng phản hồi sớm nhất có thể.
